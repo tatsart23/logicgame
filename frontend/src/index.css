@@ -1,3 +1,66 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root{
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.container{
+  @apply flex flex-col items-center;
+}
+
+.box{
+  @apply w-9 h-9 border-2 border-black rounded-full;
+}
+
+.red-block{
+  @apply bg-red-500 w-8 h-8 rounded-full;
+  
+}
+
+.yellow-block{
+  @apply bg-yellow-500 w-8 h-8 rounded-full;
+}
+
+.green-block{
+  @apply bg-green-500 w-8 h-8 rounded-full;
+}
+
+.gray-block{
+  @apply bg-gray-400 w-8 h-8 rounded-full;
+}
+
+.cyan-block{
+  @apply bg-cyan-500 w-8 h-8 rounded-full;
+}
+
+.magenta-block{
+  @apply bg-pink-900 w-8 h-8 rounded-full;
+}
+
+.purple-block{
+  @apply bg-purple-500 w-8 h-8 rounded-full;
+}
+
+.pink-block{
+  @apply bg-pink-500 w-8 h-8 rounded-full;
+}
+
+.white-block{
+  @apply bg-yellow-100 w-8 h-8 rounded-full;
+}
+
+.lime-block{
+  @apply bg-lime-500 w-8 h-8 rounded-full;
+}
+
+.orange-block{
+  @apply bg-orange-500 w-8 h-8 rounded-full;
+}
+
+.light-blue-block{
+  @apply bg-blue-300 w-8 h-8 rounded-full;
+}

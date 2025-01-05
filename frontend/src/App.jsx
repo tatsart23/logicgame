@@ -1,10 +1,15 @@
-import './App.css'
+import Timer from './components/Timer'
+import Field from './components/Field'
 
 function App() {
 
   return (
     <>
-      <h1 className='text-xl font-bold text-red-500'>Hello tailwind</h1>
+    <div className="container mx-auto">
+      <h1 className='text-xl font-bold text-red-500'>Kanoodle</h1>
+      <Timer seconds={120} />
+      <Field />
+      </div>
     </>
   )
 }
