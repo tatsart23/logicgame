@@ -64,3 +64,16 @@
 .light-blue-block{
   @apply bg-blue-300 w-8 h-8 rounded-full;
 }
+
+.box {
+  background-color: transparent; /* Ei taustaväriä oletuksena */
+  transition: background-color 0.2s ease; /* Sujuva siirtymä */
+}
+
+.box:hover {
+  background-color: rgba(0, 0, 0, 0.1); /* Valinnainen hover-efekti */
+}
+
+.box.drag-over {
+  background-color: transparent; /* Ei taustaväriä vedettäessä */
+}
