@@ -42,22 +42,22 @@ const Timer = ({ seconds }) => {
     const handleStart = () => {
         if (!isRunning) {
             setIsRunning(true);
-            setGameOver(false); // Varmistetaan, että peli ei ole päättynyt
-            setTimer(seconds); // Asetetaan ajastin alussa määritettyyn sekuntimäärään
+            setGameOver(false); 
+            setTimer(seconds); 
         }
     };
 
-    // Resetoi ajastin
+    // Nollaa ajastimen
     const handleReset = () => {
         setIsRunning(false);
         setGameOver(false);
-        setTimer(seconds); // Palautetaan alkuperäinen aika
+        setTimer(seconds); 
     };
 
     return (
         <div>
             {gameOver ? (
-                <h2 className="m-2 text-red-600">Game Over!</h2> // Ilmoitus pelin päättymisestä
+                <h2 className="m-2 text-red-600">Game Over!</h2> 
             ) : (
                 <h2 className="m-2">Timer: {formatTime(timer)}</h2>
             )}
