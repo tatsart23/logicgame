@@ -1,108 +1,71 @@
 import { useState } from "react";
+import Blocks from "./Blocks";
+import blockShapes from "./blockShapes";
 
 const Field = () => {
-  const [blocks, setBlocks] = useState([]);
+  const [blocks, setBlocks] = useState([]); // Pysyvät palikat
+  const [selectedBlock, setSelectedBlock] = useState(null); // Valittu palikka
+  const [previewBlock, setPreviewBlock] = useState([]); // Esikatseltava palikka
 
-  // Block shape definitions (relative positions for each block type)
-  const blockShapes = {
-    "red-block": [
-      { row: 0, col: 0 }, { row: 0, col: 1 },
-      { row: 1, col: 0 }, { row: 1, col: 1 },
-      { row: 2, col: 0 }
-    ],
-    "yellow-block": [
-      { row: 0, col: 0 }, { row: 0, col: 1 },
-      { row: 1, col: 0 }, { row: 2, col: 0 },
-      { row: 2, col: 1 }
-    ],
-    "green-block": [
-      { row: 0, col: 0 }, { row: 2, col: 1 },
-      { row: 1, col: 0 }, { row: 3, col: 1 },
-      { row: 1, col: 1 }
-    ],
-    "gray-block": [
-      { row: 0, col: 1 }, { row: 1, col: 0 },
-      { row: 1, col: 1 }, { row: 1, col: 2 },
-      { row: 2, col: 1 }
-    ],
-    "cyan-block": [
-      { row: 0, col: 0 }, { row: 1, col: 0 },
-      { row: 1, col: 1 }, { row: 1, col: 2 },
-      { row: 1, col: 3 }
-    ],
-    "magenta-block": [
-      { row: 0, col: 1 }, { row: 0, col: 2 },
-      { row: 1, col: 0 }, { row: 1, col: 1 },
-      { row: 2, col: 0 }
-    ],
-    "purple-block": [
-      { row: 0, col: 0 }, { row: 1, col: 0 },
-      { row: 2, col: 0 }, { row: 3, col: 0 }
-    ],
-    "pink-block": [
-      { row: 0, col: 0 }, { row: 0, col: 2 },
-      { row: 0, col: 1 }, { row: 1, col: 1 },
-      { row: 0, col: 3 }
-    ],
-    "orange-block": [
-      { row: 0, col: 0 }, { row: 0, col: 1 },
-      { row: 1, col: 0 }, { row: 0, col: 2 }
-    ],
-    "lime-block": [
-      { row: 0, col: 0 }, { row: 0, col: 1 },
-      { row: 1, col: 0 }, { row: 1, col: 1 }
-    ],
-    "white-block": [
-      { row: 0, col: 0 }, { row: 0, col: 1 },
-      { row: 1, col: 0 }
-    ],
-    "light-blue-block": [
-      { row: 0, col: 0 }, { row: 0, col: 1 },
-      { row: 0, col: 2 }, { row: 1, col: 0 },
-      { row: 2, col: 0 }
-    ]
-  };
-    // Add additional block types here
-
-  const handleDragStart = (event, blockType) => {
-    event.dataTransfer.setData("blockType", blockType);
+  const handleBlockClick = (blockType) => {
+    setSelectedBlock(blockType);
+    setPreviewBlock([]); // Tyhjennä esikatselu
   };
 
-  const handleDragOver = (event) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-  };
-
-  const handleDrop = (event, targetIndex) => {
-    event.preventDefault();
+  const handleGridHover = (index) => {
+    if (!selectedBlock) return;
   
-    const blockType = event.dataTransfer.getData("blockType");
-    if (!blockType) return;
+    const targetRow = Math.floor(index / 11);
+    const targetCol = index % 11;
   
-    const targetRow = Math.floor(targetIndex / 11); // 11 columns in the grid
-    const targetCol = targetIndex % 11;
-  
-    const shape = blockShapes[blockType];
+    const shape = blockShapes[selectedBlock];
     if (!shape) return;
   
-    // Calculate new positions based on the block's shape and drop location
-    const newPositions = shape.map(({ row, col }) => ({
-      index: (targetRow + row) * 11 + (targetCol + col), // Calculate absolute index
+    const previewPositions = shape.map(({ row, col }) => ({
+      index: (targetRow + row) * 11 + (targetCol + col),
       row: targetRow + row,
       col: targetCol + col,
-      type: blockType,
+      type: selectedBlock,
     }));
   
-    // Validation: Check for out-of-bounds
+    const isOutOfBounds = previewPositions.some(
+      ({ row, col }) => row < 0 || col < 0 || col >= 11 || row >= 5
+    );
+    if (isOutOfBounds) {
+      setPreviewBlock([]); // Älä näytä mitään, jos alue on rajojen ulkopuolella
+      return;
+    }
+  
+    setPreviewBlock(previewPositions); // Aseta esikatselupalikka
+  };
+  const handleGridLeave = () => {
+    setPreviewBlock([]); // Tyhjennä esikatselu, kun hiiri poistuu
+  };
+
+  const handleGridClick = (index) => {
+    if (!selectedBlock) return;
+  
+    const targetRow = Math.floor(index / 11);
+    const targetCol = index % 11;
+  
+    const shape = blockShapes[selectedBlock];
+    if (!shape) return;
+  
+    const newPositions = shape.map(({ row, col }) => ({
+      index: (targetRow + row) * 11 + (targetCol + col),
+      row: targetRow + row,
+      col: targetCol + col,
+      type: selectedBlock,
+    }));
+  
     const isOutOfBounds = newPositions.some(
-      ({ row, col }) => row < 0 || col < 0 || col >= 11 || row >= 5 // 5 rows, 11 columns
+      ({ row, col }) => row < 0 || col < 0 || col >= 11 || row >= 5
     );
     if (isOutOfBounds) {
       alert("Placement out of bounds!");
       return;
     }
   
-    // Validation: Check for overlapping blocks
     const isOverlapping = newPositions.some(({ index }) =>
       blocks.some((block) => block.position === index)
     );
@@ -111,41 +74,42 @@ const Field = () => {
       return;
     }
   
-    // If valid, update the state with the new block positions
     setBlocks((prevBlocks) => [
       ...prevBlocks,
-      ...newPositions.map(({ index }) => ({ type: blockType, position: index })),
+      ...newPositions.map(({ index }) => ({ type: selectedBlock, position: index })),
     ]);
+  
+    setSelectedBlock(null);
+    setPreviewBlock([]); // Tyhjennä esikatselu
   };
-  
-  
 
-  const renderBlock = (blockType) => {
+  const renderBlock = (blockType, isPreview = false) => {
+    const previewClass = isPreview ? "opacity-50" : ""; // Esikatselun läpinäkyvyys
     switch (blockType) {
       case "red-block":
-        return <div className="red-block"></div>;
+        return <div className={`red-block ${previewClass}`}></div>;
       case "yellow-block":
-        return <div className="yellow-block"></div>;
+        return <div className={`yellow-block ${previewClass}`}></div>;
       case "green-block":
-        return <div className="green-block"></div>;
+        return <div className={`green-block ${previewClass}`}></div>;
       case "gray-block":
-        return <div className="gray-block"></div>;
+        return <div className={`gray-block ${previewClass}`}></div>;
       case "cyan-block":
-        return <div className="cyan-block"></div>;
+        return <div className={`cyan-block ${previewClass}`}></div>;
       case "magenta-block":
-        return <div className="magenta-block"></div>;
+        return <div className={`magenta-block ${previewClass}`}></div>;
       case "purple-block":
-        return <div className="purple-block"></div>;
+        return <div className={`purple-block ${previewClass}`}></div>;
       case "pink-block":
-        return <div className="pink-block"></div>;
+        return <div className={`pink-block ${previewClass}`}></div>;
       case "orange-block":
-        return <div className="orange-block"></div>;
+        return <div className={`orange-block ${previewClass}`}></div>;
       case "lime-block":
-        return <div className="lime-block"></div>;
+        return <div className={`lime-block ${previewClass}`}></div>;
       case "white-block":
-        return <div className="white-block"></div>;
+        return <div className={`white-block ${previewClass}`}></div>;
       case "light-blue-block":
-        return <div className="light-blue-block"></div>;
+        return <div className={`light-blue-block ${previewClass}`}></div>;
       default:
         return null;
     }
@@ -160,156 +124,28 @@ const Field = () => {
             className={`box border transition-colors duration-200 ${
               blocks.some((block) => block.position === index) ? "filled" : ""
             }`}
-            onDragOver={handleDragOver}
-            onDrop={(e) => handleDrop(e, index)}
+            onMouseEnter={() => handleGridHover(index)} // Hiiri ruudun päälle
+            onMouseLeave={handleGridLeave} // Hiiri pois ruudusta
+            onClick={() => handleGridClick(index)} // Klikkaa ruutua
           >
+            {/* Renderöi pysyvät palikat */}
             {blocks
               .filter((block) => block.position === index)
               .map((block, i) => (
                 <div key={i}>{renderBlock(block.type)}</div>
               ))}
+
+            {/* Renderöi esikatselupalikat */}
+            {previewBlock
+              .filter((block) => block.index === index)
+              .map((block, i) => (
+                <div key={i}>{renderBlock(block.type, true)}</div>
+              ))}
           </div>
         ))}
       </div>
 
-      <div className="mt-2 p-3 grid grid-cols-3 bg-blue-500 gap-4">
-        <div
-          className="grid grid-cols-2 grid-rows-3 w-16"
-          style={{ height: "95px" }}
-          draggable="true"
-          onDragStart={(e) => handleDragStart(e, "red-block")}
-        >
-          <div className="red-block"></div>
-          <div className="red-block "></div>
-          <div className="red-block"></div>
-          <div className="red-block"></div>
-          <div className="red-block"></div>
-        </div>
-        <div
-          className="grid grid-cols-2 grid-rows-3 w-16 "
-          style={{ height: "95px" }}
-          draggable="true"
-          onDragStart={(e) => handleDragStart(e, "yellow-block")}
-        >
-          <div className="yellow-block"></div>
-          <div className="yellow-block"></div>
-          <div className="yellow-block col-span-2"></div>
-          <div className="yellow-block"></div>
-          <div className="yellow-block"></div>
-        </div>
-        <div
-          className="grid grid-cols-2 grid-rows-4 w-16"
-          style={{ height: "124px" }}
-          draggable="true"
-          onDragStart={(e) => handleDragStart(e, "green-block")}
-        >
-          <div className="green-block col-span-2"></div>
-          <div className="green-block"></div>
-          <div className="green-block"></div>
-          <div className="green-block col-start-2"></div>
-          <div className="green-block col-start-2"></div>
-        </div>
-        <div
-          className="grid grid-cols-3 grid-rows-3 place-items-center"
-          style={{ width: "95px" }}
-          draggable="true"
-          onDragStart={(e) => handleDragStart(e, "gray-block")}
-        >
-          <div></div>
-          <div className="gray-block"></div>
-          <div></div>
-          <div className="gray-block"></div>
-          <div className="gray-block"></div>
-          <div className="gray-block"></div>
-          <div></div>
-          <div className="gray-block"></div>
-          <div></div>
-        </div>
-        <div
-          className="grid grid-cols-4 grid-rows-2"
-          style={{ height: "62px" }}
-          draggable="true"
-          onDragStart={(e) => handleDragStart(e, "cyan-block")}
-        >
-          <div className="cyan-block col-start-1 col-span-1"></div>
-          <div className="cyan-block col-start-1 row-start-2"></div>
-          <div className="cyan-block col-start-2 row-start-2"></div>
-          <div className="cyan-block col-start-3 row-start-2"></div>
-          <div className="cyan-block col-start-4 row-start-2"></div>
-        </div>
-        <div className="grid grid-cols-3 grid-rows-3" style={{ width: "95px" }}
-        draggable="true"
-        onDragStart={(e) => handleDragStart(e, "magenta-block")}>
-          <div></div>
-          <div className="magenta-block"></div>
-          <div className="magenta-block"></div>
-          <div className="magenta-block"></div>
-          <div className="magenta-block"></div>
-          <div></div>
-          <div className="magenta-block"></div>
-        </div>
-        <div className="grid w-8" style={{ height: "120px" }}
-        draggable="true"
-        onDragStart={(e) => handleDragStart(e, "purple-block")}>
-          <div className="purple-block"></div>
-          <div className="purple-block"></div>
-          <div className="purple-block"></div>
-          <div className="purple-block"></div>
-        </div>
-        <div
-          className="grid grid-cols-4 grid-rows-2"
-          style={{ height: "62px" }}
-          draggable="true"
-          onDragStart={(e) => handleDragStart(e, "pink-block")}
-        >
-          <div className="pink-block col-start-1 col-span-1"></div>
-          <div className="pink-block col-start-2 row-start-2"></div>
-          <div className="pink-block"></div>
-          <div className="pink-block"></div>
-          <div className="pink-block"></div>
-        </div>
-        <div
-          className="grid grid-cols-3 grid-rows-2"
-          style={{ height: "62px", width: "95px" }}
-          draggable="true"
-          onDragStart={(e) => handleDragStart(e, "orange-block")}
-        >
-          <div className="orange-block"></div>
-          <div className="orange-block"></div>
-          <div className="orange-block"></div>
-          <div className="orange-block"></div>
-        </div>
-        <div
-          className="grid grid-cols-2 grid-rows-2 w-16"
-          style={{ height: "62px" }}
-          draggable="true"
-          onDragStart={(e) => handleDragStart(e, "lime-block")}
-        >
-          <div className="lime-block"></div>
-          <div className="lime-block"></div>
-          <div className="lime-block"></div>
-          <div className="lime-block"></div>
-        </div>
-        <div
-          className="grid grid-cols-2 grid-rows-2 w-16"
-          style={{ height: "62px" }}
-          draggable="true"
-          onDragStart={(e) => handleDragStart(e, "white-block")}
-        >
-          <div className="white-block"></div>
-          <div className="white-block"></div>
-          <div className="white-block"></div>
-        </div>
-        <div className="grid grid-rows-3 grid-cols-3" style={{ width: "95px" }}
-        draggable="true"
-        onDragStart={(e) => handleDragStart(e, "light-blue-block")}>
-          <div className="light-blue-block"></div>
-          <div className="light-blue-block"></div>
-          <div className="light-blue-block"></div>
-          <div className="light-blue-block"></div>
-          <div className="light-blue-block col-start-1"></div>
-        </div>
-      </div>
+      <Blocks handleBlockClick={handleBlockClick} />
     </>
   );
 };
