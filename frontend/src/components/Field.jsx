@@ -42,6 +42,16 @@ const Field = () => {
     setPreviewBlock([]); // Tyhjennä esikatselu, kun hiiri poistuu
   };
 
+
+  const checkIfWon = () => {
+    const allDivs = document.querySelectorAll(".box");
+    const filledDivs = document.querySelectorAll(".filled");
+    if (allDivs.length === filledDivs.length && filledDivs.length > 0) {
+      alert("You won!");
+      gameOver = true;
+    }
+  };
+
   const handleGridClick = (index) => {
     if (!selectedBlock) return;
   
@@ -73,6 +83,8 @@ const Field = () => {
       alert("Blocks are overlapping!");
       return;
     }
+
+   
   
     setBlocks((prevBlocks) => [
       ...prevBlocks,
@@ -144,7 +156,7 @@ const Field = () => {
           </div>
         ))}
       </div>
-
+        {checkIfWon()}
       <Blocks handleBlockClick={handleBlockClick} />
     </>
   );
