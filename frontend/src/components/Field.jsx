@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Blocks from "./Blocks";
 import blockShapes from "./blockShapes";
 
@@ -6,42 +6,62 @@ const Field = () => {
   const [blocks, setBlocks] = useState([]); // Pysyvät palikat
   const [selectedBlock, setSelectedBlock] = useState(null); // Valittu palikka
   const [previewBlock, setPreviewBlock] = useState([]); // Esikatseltava palikka
+  const [rotation, setRotation] = useState(0); // Palikan kääntö
+  const [usedBlocks, setUsedBlocks] = useState([]); // Lista käytetyistä palikoista
 
   const handleBlockClick = (blockType) => {
+    if (usedBlocks.includes(blockType)) {
+      alert("Tätä palikkaa on jo käytetty!"); // Jos palikka on jo käytetty
+      return;
+    }
     setSelectedBlock(blockType);
     setPreviewBlock([]); // Tyhjennä esikatselu
   };
 
+  // Rotate block immediately when right-clicking (on context menu)
+  const rotateBlock = () => {
+    if (!selectedBlock) return;
+    setRotation((prevRotation) => (prevRotation + 90) % 360);
+  };
+
   const handleGridHover = (index) => {
     if (!selectedBlock) return;
-  
+
     const targetRow = Math.floor(index / 11);
     const targetCol = index % 11;
-  
-    const shape = blockShapes[selectedBlock];
-    if (!shape) return;
-  
+
+    const shapeData = blockShapes[selectedBlock];
+    let shape = [];
+
+    // Determine which rotation to use based on current rotation state
+    const rotations = shapeData.rotations || [shapeData]; // Default to no rotation if none exist
+    const rotationIndex = rotation / 90; // 0 for 0°, 1 for 90°, etc.
+
+    // Get the correct shape based on current rotation
+    shape = rotations[rotationIndex % rotations.length];
+
     const previewPositions = shape.map(({ row, col }) => ({
       index: (targetRow + row) * 11 + (targetCol + col),
       row: targetRow + row,
       col: targetCol + col,
       type: selectedBlock,
     }));
-  
+
+    // Check if the preview is out of bounds
     const isOutOfBounds = previewPositions.some(
       ({ row, col }) => row < 0 || col < 0 || col >= 11 || row >= 5
     );
     if (isOutOfBounds) {
-      setPreviewBlock([]); // Älä näytä mitään, jos alue on rajojen ulkopuolella
+      setPreviewBlock([]); // Do not show preview if out of bounds
       return;
     }
-  
-    setPreviewBlock(previewPositions); // Aseta esikatselupalikka
+
+    setPreviewBlock(previewPositions); // Update preview block positions
   };
+
   const handleGridLeave = () => {
     setPreviewBlock([]); // Tyhjennä esikatselu, kun hiiri poistuu
   };
-
 
   const checkIfWon = () => {
     const allDivs = document.querySelectorAll(".box");
@@ -54,20 +74,34 @@ const Field = () => {
 
   const handleGridClick = (index) => {
     if (!selectedBlock) return;
-  
+
     const targetRow = Math.floor(index / 11);
     const targetCol = index % 11;
-  
-    const shape = blockShapes[selectedBlock];
-    if (!shape) return;
-  
+
+    const shapeData = blockShapes[selectedBlock];
+
+    let shape = [];
+
+    // Check if the block has rotations (for red-block)
+    if (shapeData.rotations) {
+      shape = shapeData.rotations[rotation / 90]; // Use the current rotation
+    } else {
+      shape = shapeData; // If no rotations, treat shapeData as the array directly
+    }
+
+    if (!Array.isArray(shape)) {
+      console.error(`Shape for ${selectedBlock} is not an array`, shape);
+      return;
+    }
+
     const newPositions = shape.map(({ row, col }) => ({
       index: (targetRow + row) * 11 + (targetCol + col),
       row: targetRow + row,
       col: targetCol + col,
       type: selectedBlock,
     }));
-  
+
+    // Check if the new positions are out of bounds
     const isOutOfBounds = newPositions.some(
       ({ row, col }) => row < 0 || col < 0 || col >= 11 || row >= 5
     );
@@ -75,7 +109,8 @@ const Field = () => {
       alert("Placement out of bounds!");
       return;
     }
-  
+
+    // Check if the block overlaps with existing blocks
     const isOverlapping = newPositions.some(({ index }) =>
       blocks.some((block) => block.position === index)
     );
@@ -84,15 +119,18 @@ const Field = () => {
       return;
     }
 
-   
-  
+    // Add new positions to blocks array
     setBlocks((prevBlocks) => [
       ...prevBlocks,
       ...newPositions.map(({ index }) => ({ type: selectedBlock, position: index })),
     ]);
-  
+
+    // Mark block as used
+    setUsedBlocks((prevUsedBlocks) => [...prevUsedBlocks, selectedBlock]);
+
+    // Reset selected block and preview
     setSelectedBlock(null);
-    setPreviewBlock([]); // Tyhjennä esikatselu
+    setPreviewBlock([]); // Clear preview block
   };
 
   const renderBlock = (blockType, isPreview = false) => {
@@ -127,9 +165,19 @@ const Field = () => {
     }
   };
 
+  useEffect(() => {
+    // Ensure preview is updated when rotation changes
+    if (selectedBlock) {
+      setPreviewBlock([]); // Reset preview block
+    }
+  }, [rotation, selectedBlock]);
+
   return (
     <>
-      <div className="grid grid-cols-11 w-96 mt-5 border p-2" id="game-board">
+      <div
+        className="grid grid-cols-11 w-96 mt-5 border p-2"
+        id="game-board"
+      >
         {Array.from({ length: 55 }, (_, index) => (
           <div
             key={index}
@@ -139,6 +187,10 @@ const Field = () => {
             onMouseEnter={() => handleGridHover(index)} // Hiiri ruudun päälle
             onMouseLeave={handleGridLeave} // Hiiri pois ruudusta
             onClick={() => handleGridClick(index)} // Klikkaa ruutua
+            onContextMenu={(e) => {
+              e.preventDefault(); // Estetään kontekstivalikko
+              rotateBlock(); // Pyöritä palikkaa
+            }}
           >
             {/* Renderöi pysyvät palikat */}
             {blocks
@@ -156,7 +208,7 @@ const Field = () => {
           </div>
         ))}
       </div>
-        {checkIfWon()}
+      {checkIfWon()}
       <Blocks handleBlockClick={handleBlockClick} />
     </>
   );
