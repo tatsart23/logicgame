@@ -1,15 +1,29 @@
 import { useState, useEffect } from "react";
 import Blocks from "./Blocks";
 import blockShapes from "./blockShapes";
+import { use } from "react";
 
-const Field = () => {
+const Field = ({ isRunning, resetGame, setGameOver }) => {
   const [blocks, setBlocks] = useState([]); // Pysyvät palikat
   const [selectedBlock, setSelectedBlock] = useState(null); // Valittu palikka
   const [previewBlock, setPreviewBlock] = useState([]); // Esikatseltava palikka
   const [rotation, setRotation] = useState(0); // Palikan kääntö
   const [usedBlocks, setUsedBlocks] = useState([]); // Lista käytetyistä palikoista
 
+
+  const handleReset = () => {
+    setBlocks([]); // Tyhjennä pelikenttä
+    setUsedBlocks([]); // Tyhjennä käytetyt palikat
+    setSelectedBlock(null); // Tyhjennä valittu palikka
+    setPreviewBlock([]); // Tyhjennä esikatselu
+    setRotation(0); // Nollaa kääntö
+  };
+
   const handleBlockClick = (blockType) => {
+    if (!isRunning) {
+      alert("The game is not running! Press Start to begin.");
+      return;
+    }
     if (usedBlocks.includes(blockType)) {
       alert("Tätä palikkaa on jo käytetty!"); // Jos palikka on jo käytetty
       return;
@@ -23,6 +37,7 @@ const Field = () => {
     if (!selectedBlock) return;
     setRotation((prevRotation) => (prevRotation + 90) % 360);
   };
+
 
   const handleGridHover = (index) => {
     if (!selectedBlock) return;
@@ -67,12 +82,17 @@ const Field = () => {
     const allDivs = document.querySelectorAll(".box");
     const filledDivs = document.querySelectorAll(".filled");
     if (allDivs.length === filledDivs.length && filledDivs.length > 0) {
+      setGameOver(true);
       alert("You won!");
-      gameOver = true;
+      
     }
   };
 
   const handleGridClick = (index) => {
+    if (!isRunning) {
+      alert("The game is not running! Press Start to begin.");
+      return;
+    }
     if (!selectedBlock) return;
 
     const targetRow = Math.floor(index / 11);
@@ -172,6 +192,18 @@ const Field = () => {
     }
   }, [rotation, selectedBlock]);
 
+  useEffect(() => {
+    checkIfWon();
+  }
+  , [blocks]);
+
+  useEffect(() => {
+    if (resetGame) {
+      handleReset();
+    }
+  }, [resetGame]);
+
+
   return (
     <>
       <div
@@ -208,7 +240,6 @@ const Field = () => {
           </div>
         ))}
       </div>
-      {checkIfWon()}
       <Blocks handleBlockClick={handleBlockClick} />
     </>
   );
