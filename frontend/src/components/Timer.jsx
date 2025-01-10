@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
+import { use } from "react";
 
-const Timer = ({ seconds }) => {
+const Timer = ({ seconds, setIsRunning, gameOver, setGameOver, resetGame, handleGameReset, isRunning }) => {
     const [timer, setTimer] = useState(seconds);
-    const [gameOver, setGameOver] = useState(false); // Seurataan, onko peli päättynyt
-    const [isRunning, setIsRunning] = useState(false); // Käytetään ajastimen käynnistämiseen ja pysäyttämiseen
     const timerId = useRef();
 
     const formatTime = (time) => {
@@ -18,67 +17,74 @@ const Timer = ({ seconds }) => {
     };
 
     useEffect(() => {
+        if (resetGame) {
+            setTimer(seconds);
+            setGameOver(false);
+            setIsRunning(false);
+        }
+    }
+    , [resetGame, seconds, setGameOver, setIsRunning]);
+
+    useEffect(() => {
         if (isRunning && !gameOver) {
-            timerId.current = setInterval(() => {
-                setTimer((prevTimer) => {
-                    if (prevTimer <= 1) {
-                        clearInterval(timerId.current);
-                        setGameOver(true); // Peli päättyy
-                        return 0;
-                    }
-                    return prevTimer - 1;
-                });
-            }, 1000);
+          timerId.current = setInterval(() => {
+            setTimer((prevTimer) => {
+              if (prevTimer <= 1) {
+                clearInterval(timerId.current);
+                setGameOver(true);
+                setIsRunning(false); // Update shared state
+                return 0;
+              }
+              return prevTimer - 1;
+            });
+          }, 1000);
         } else {
-            clearInterval(timerId.current);
+          clearInterval(timerId.current);
         }
-
+    
         return () => {
-            clearInterval(timerId.current);
+          clearInterval(timerId.current);
         };
-    }, [isRunning, gameOver]);
-
-    // Käynnistää ajastimen
-    const handleStart = () => {
+      }, [isRunning, gameOver]);
+    
+      const handleStart = () => {
         if (!isRunning) {
-            setIsRunning(true);
-            setGameOver(false); 
-            setTimer(seconds); 
+          setIsRunning(true); // Update shared state
+          setGameOver(false);
+          setTimer(seconds);
         }
-    };
-
-    // Nollaa ajastimen
-    const handleReset = () => {
-        setIsRunning(false);
-        setGameOver(false);
-        setTimer(seconds); 
-    };
-
-    return (
+      };
+    
+      return (
         <div>
-            {gameOver ? (
-                <h2 className="m-2 text-red-600">Game Over!</h2> 
-            ) : (
-                <h2 className="m-2">Timer: {formatTime(timer)}</h2>
-            )}
-            <button
-                className="m-1 rounded bg-lime-600 p-2"
-                onClick={handleStart}
-            >
-                Start
-            </button>
-            <button
-                className="m-1 rounded bg-red-600 p-2"
-                onClick={handleReset}
-            >
-                Reset
-            </button>
+          {gameOver ? (
+            <h2 className="m-2 text-red-600">Game Over!</h2>
+          ) : (
+            <h2 className="m-2">Timer: {formatTime(timer)}</h2>
+          )}
+          <button
+            className="m-1 rounded bg-lime-600 p-2"
+            onClick={handleStart}
+          >
+            Start
+          </button>
+          <button
+            className="m-1 rounded bg-red-600 p-2"
+            onClick={handleGameReset}
+          >
+            Reset
+          </button>
         </div>
-    );
-};
-
-Timer.propTypes = {
-    seconds: PropTypes.number.isRequired,
-};
-
-export default Timer;
+      );
+    };
+    
+    Timer.propTypes = {
+        seconds: PropTypes.number.isRequired,
+        setIsRunning: PropTypes.func.isRequired,
+        gameOver: PropTypes.bool.isRequired,
+        setGameOver: PropTypes.func.isRequired,
+        resetGame: PropTypes.bool.isRequired,
+        isRunning: PropTypes.bool.isRequired, // Add this prop type
+      };
+    
+    export default Timer;
