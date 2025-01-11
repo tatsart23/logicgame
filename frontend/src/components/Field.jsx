@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
+import PropTypes from 'prop-types';
 import Blocks from "./Blocks";
 import blockShapes from "./blockShapes";
-import { use } from "react";
+import Infopanel from "./Infopanel";
 
 const Field = ({ isRunning, resetGame, setGameOver }) => {
   const [blocks, setBlocks] = useState([]); // Pysyvät palikat
@@ -206,6 +207,7 @@ const Field = ({ isRunning, resetGame, setGameOver }) => {
 
   return (
     <>
+      <Infopanel />
       <div
         className="grid grid-cols-11 w-96 mt-5 border p-2"
         id="game-board"
@@ -243,6 +245,11 @@ const Field = ({ isRunning, resetGame, setGameOver }) => {
       <Blocks handleBlockClick={handleBlockClick} />
     </>
   );
+};
+Field.propTypes = {
+  isRunning: PropTypes.bool.isRequired,
+  resetGame: PropTypes.bool.isRequired,
+  setGameOver: PropTypes.func.isRequired,
 };
 
 export default Field;
