@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
-import { use } from "react";
+
 
 const Timer = ({ seconds, setIsRunning, gameOver, setGameOver, resetGame, handleGameReset, isRunning }) => {
     const [timer, setTimer] = useState(seconds);
@@ -56,26 +56,32 @@ const Timer = ({ seconds, setIsRunning, gameOver, setGameOver, resetGame, handle
       };
     
       return (
-        <div>
+        <div className="flex flex-col items-center">
           {gameOver ? (
-            <h2 className="m-2 text-red-600">Game Over!</h2>
+            <h2 className="m-2 text-red-600 text-center">Game Over!</h2>
           ) : (
-            <h2 className="m-2">Timer: {formatTime(timer)}</h2>
+            <h2 className="m-2 text-center">Timer: {formatTime(timer)}</h2>
           )}
-          <button
-            className="m-1 rounded bg-lime-600 p-2"
-            onClick={handleStart}
-          >
-            Start
-          </button>
-          <button
-            className="m-1 rounded bg-red-600 p-2"
-            onClick={handleGameReset}
-          >
-            Reset
-          </button>
+          <div className="flex justify-center space-x-2 mt-4">
+            <button
+              className="rounded bg-lime-600 p-2"
+              onClick={handleStart}
+            >
+              Start
+            </button>
+            <button
+              className="rounded bg-red-600 p-2"
+              onClick={handleGameReset}
+            >
+              Reset
+            </button>
+            <button className="rounded bg-amber-500 p-2">
+              Random
+            </button>
+          </div>
         </div>
       );
+      
     };
     
     Timer.propTypes = {
@@ -84,7 +90,8 @@ const Timer = ({ seconds, setIsRunning, gameOver, setGameOver, resetGame, handle
         gameOver: PropTypes.bool.isRequired,
         setGameOver: PropTypes.func.isRequired,
         resetGame: PropTypes.bool.isRequired,
-        isRunning: PropTypes.bool.isRequired, // Add this prop type
+        isRunning: PropTypes.bool.isRequired,
+        handleGameReset: PropTypes.func.isRequired,
       };
     
     export default Timer;
