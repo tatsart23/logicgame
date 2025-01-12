@@ -1,45 +1,110 @@
 import { useState, useEffect } from "react";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import Blocks from "./Blocks";
 import blockShapes from "./blockShapes";
 import Infopanel from "./Infopanel";
 
-const Field = ({ isRunning, resetGame, setGameOver }) => {
-  const [blocks, setBlocks] = useState([]); // Pysyvät palikat
+const Field = ({ isRunning, resetGame, setGameOver, currentBlock }) => {
+  const [blocks, setBlocks] = useState([]); // Pelissä olevat palikat
   const [selectedBlock, setSelectedBlock] = useState(null); // Valittu palikka
-  const [previewBlock, setPreviewBlock] = useState([]); // Esikatseltava palikka
-  const [rotation, setRotation] = useState(0); // Palikan kääntö
-  const [usedBlocks, setUsedBlocks] = useState([]); // Lista käytetyistä palikoista
-
+  const [previewBlock, setPreviewBlock] = useState([]); // Esikatselu palikka
+  const [rotation, setRotation] = useState(0); // Palikan kulma
+  const [usedBlocks, setUsedBlocks] = useState([]); // Käytetyt palikat
 
   const handleReset = () => {
-    setBlocks([]); // Tyhjennä pelikenttä
+    setBlocks([]); // Tyhjennä kenttä
     setUsedBlocks([]); // Tyhjennä käytetyt palikat
-    setSelectedBlock(null); // Tyhjennä valittu palikka
+    setSelectedBlock(null); // Poista valittu palikka
     setPreviewBlock([]); // Tyhjennä esikatselu
-    setRotation(0); // Nollaa kääntö
+    setRotation(0); // Nollaa kulma
   };
 
+  // Aseta satunnainen palikka kentälle
+  const placeRandomBlock = (blockType) => {
+    // Tarkistetaan, onko palikka jo käytetty
+    if (usedBlocks.includes(blockType)) {
+      console.log(`${blockType} already used!`);
+      return; // Jos palikka on jo käytetty, ei aseteta sitä
+    }
+  
+    // Tarkistetaan, onko blockType kelvollinen
+    const shapeData = blockShapes[blockType];
+    if (!shapeData) {
+      console.error(`${blockType} is not a valid block type.`);
+      return;
+    }
+  
+    // Käytetään palikan rotaatioita, jos niitä on, muuten käytetään oletusmuotoa
+    const rotations = shapeData.rotations || [shapeData];
+    let placed = false;
+  
+    while (!placed) {
+      // Valitaan satunnainen paikka kentällä (kenttä 5x11)
+      const randomPosition = Math.floor(Math.random() * 55);
+      const targetRow = Math.floor(randomPosition / 11);
+      const targetCol = randomPosition % 11;
+  
+      // Valitaan satunnainen rotaatio
+      const rotationIndex = Math.floor(Math.random() * rotations.length);
+      const shape = rotations[rotationIndex];
+  
+      // Määritetään palikan paikat kentällä (kenttä 5x11)
+      const previewPositions = shape.map(({ row, col }) => ({
+        index: (targetRow + row) * 11 + (targetCol + col),
+        row: targetRow + row,
+        col: targetCol + col,
+        type: blockType,
+      }));
+  
+      // Tarkistetaan, meneekö palikka ulos kentältä
+      const isOutOfBounds = previewPositions.some(
+        ({ row, col }) => row < 0 || col < 0 || col >= 11 || row >= 5
+      );
+  
+      // Jos palikka ei mene ulos kentältä, asetetaan se
+      if (!isOutOfBounds) {
+        // Asetetaan palikka kentälle
+        setBlocks((prev) => [
+          ...prev,
+          ...previewPositions.map(({ index }) => ({ type: blockType, position: index })),
+        ]);
+        setSelectedBlock(blockType);
+        setUsedBlocks((prev) => [...prev, blockType]); // Lisätään palikka käytettyihin
+        placed = true;
+      }
+    }
+  };
+  
+  
+
+  // Käsittele satunnaisen palikan asettamista
+  useEffect(() => {
+    if (currentBlock) {
+      placeRandomBlock(currentBlock);
+    }
+  }, [currentBlock]);
+
+  // Käsittele palikan valintaa
   const handleBlockClick = (blockType) => {
     if (!isRunning) {
       alert("The game is not running! Press Start to begin.");
       return;
     }
     if (usedBlocks.includes(blockType)) {
-      alert("Tätä palikkaa on jo käytetty!"); // Jos palikka on jo käytetty
+      alert("This block has already been used!");
       return;
     }
     setSelectedBlock(blockType);
-    setPreviewBlock([]); // Tyhjennä esikatselu
+    setPreviewBlock([]); // Poista esikatselu
   };
 
-  // Rotate block immediately when right-clicking (on context menu)
+  // Käännä palikkaa 90 astetta
   const rotateBlock = () => {
     if (!selectedBlock) return;
-    setRotation((prevRotation) => (prevRotation + 90) % 360);
+    setRotation((prev) => (prev + 90) % 360);
   };
 
-
+  // Käsittele ruudukon hover-tapahtuma
   const handleGridHover = (index) => {
     if (!selectedBlock) return;
 
@@ -47,14 +112,8 @@ const Field = ({ isRunning, resetGame, setGameOver }) => {
     const targetCol = index % 11;
 
     const shapeData = blockShapes[selectedBlock];
-    let shape = [];
-
-    // Determine which rotation to use based on current rotation state
-    const rotations = shapeData.rotations || [shapeData]; // Default to no rotation if none exist
-    const rotationIndex = rotation / 90; // 0 for 0°, 1 for 90°, etc.
-
-    // Get the correct shape based on current rotation
-    shape = rotations[rotationIndex % rotations.length];
+    const rotations = shapeData.rotations || [shapeData];
+    const shape = rotations[(rotation / 90) % rotations.length];
 
     const previewPositions = shape.map(({ row, col }) => ({
       index: (targetRow + row) * 11 + (targetCol + col),
@@ -63,32 +122,34 @@ const Field = ({ isRunning, resetGame, setGameOver }) => {
       type: selectedBlock,
     }));
 
-    // Check if the preview is out of bounds
     const isOutOfBounds = previewPositions.some(
       ({ row, col }) => row < 0 || col < 0 || col >= 11 || row >= 5
     );
+
     if (isOutOfBounds) {
-      setPreviewBlock([]); // Do not show preview if out of bounds
+      setPreviewBlock([]); // Poista esikatselu
       return;
     }
 
-    setPreviewBlock(previewPositions); // Update preview block positions
+    setPreviewBlock(previewPositions);
   };
 
+  // Käsittele ruudukon "mouseleave" -tapahtuma
   const handleGridLeave = () => {
-    setPreviewBlock([]); // Tyhjennä esikatselu, kun hiiri poistuu
+    setPreviewBlock([]); // Poista esikatselu
   };
 
+  // Tarkista, onko peli voitetty
   const checkIfWon = () => {
     const allDivs = document.querySelectorAll(".box");
     const filledDivs = document.querySelectorAll(".filled");
     if (allDivs.length === filledDivs.length && filledDivs.length > 0) {
       setGameOver(true);
       alert("You won!");
-      
     }
   };
 
+  // Käsittele ruudukon klikkaamista
   const handleGridClick = (index) => {
     if (!isRunning) {
       alert("The game is not running! Press Start to begin.");
@@ -100,20 +161,9 @@ const Field = ({ isRunning, resetGame, setGameOver }) => {
     const targetCol = index % 11;
 
     const shapeData = blockShapes[selectedBlock];
-
-    let shape = [];
-
-    // Check if the block has rotations (for red-block)
-    if (shapeData.rotations) {
-      shape = shapeData.rotations[rotation / 90]; // Use the current rotation
-    } else {
-      shape = shapeData; // If no rotations, treat shapeData as the array directly
-    }
-
-    if (!Array.isArray(shape)) {
-      console.error(`Shape for ${selectedBlock} is not an array`, shape);
-      return;
-    }
+    const shape = shapeData.rotations
+      ? shapeData.rotations[(rotation / 90) % shapeData.rotations.length]
+      : shapeData;
 
     const newPositions = shape.map(({ row, col }) => ({
       index: (targetRow + row) * 11 + (targetCol + col),
@@ -122,7 +172,6 @@ const Field = ({ isRunning, resetGame, setGameOver }) => {
       type: selectedBlock,
     }));
 
-    // Check if the new positions are out of bounds
     const isOutOfBounds = newPositions.some(
       ({ row, col }) => row < 0 || col < 0 || col >= 11 || row >= 5
     );
@@ -131,7 +180,6 @@ const Field = ({ isRunning, resetGame, setGameOver }) => {
       return;
     }
 
-    // Check if the block overlaps with existing blocks
     const isOverlapping = newPositions.some(({ index }) =>
       blocks.some((block) => block.position === index)
     );
@@ -140,100 +188,76 @@ const Field = ({ isRunning, resetGame, setGameOver }) => {
       return;
     }
 
-    // Add new positions to blocks array
-    setBlocks((prevBlocks) => [
-      ...prevBlocks,
+    setBlocks((prev) => [
+      ...prev,
       ...newPositions.map(({ index }) => ({ type: selectedBlock, position: index })),
     ]);
-
-    // Mark block as used
-    setUsedBlocks((prevUsedBlocks) => [...prevUsedBlocks, selectedBlock]);
-
-    // Reset selected block and preview
+    setUsedBlocks((prev) => [...prev, selectedBlock]);
     setSelectedBlock(null);
-    setPreviewBlock([]); // Clear preview block
+    setPreviewBlock([]); // Tyhjennä esikatselu
   };
 
+  // Renderöi palikka kentälle
   const renderBlock = (blockType, isPreview = false) => {
-    const previewClass = isPreview ? "opacity-50" : ""; // Esikatselun läpinäkyvyys
-    switch (blockType) {
-      case "red-block":
-        return <div className={`red-block ${previewClass}`}></div>;
-      case "yellow-block":
-        return <div className={`yellow-block ${previewClass}`}></div>;
-      case "green-block":
-        return <div className={`green-block ${previewClass}`}></div>;
-      case "gray-block":
-        return <div className={`gray-block ${previewClass}`}></div>;
-      case "cyan-block":
-        return <div className={`cyan-block ${previewClass}`}></div>;
-      case "magenta-block":
-        return <div className={`magenta-block ${previewClass}`}></div>;
-      case "purple-block":
-        return <div className={`purple-block ${previewClass}`}></div>;
-      case "pink-block":
-        return <div className={`pink-block ${previewClass}`}></div>;
-      case "orange-block":
-        return <div className={`orange-block ${previewClass}`}></div>;
-      case "lime-block":
-        return <div className={`lime-block ${previewClass}`}></div>;
-      case "white-block":
-        return <div className={`white-block ${previewClass}`}></div>;
-      case "light-blue-block":
-        return <div className={`light-blue-block ${previewClass}`}></div>;
-      default:
-        return null;
-    }
+    const previewClass = isPreview ? "opacity-50" : "";
+    const blockClasses = {
+      "red-block": "red-block",
+      "yellow-block": "yellow-block",
+      "green-block": "green-block",
+      "gray-block": "gray-block",
+      "cyan-block": "cyan-block",
+      "magenta-block": "magenta-block",
+      "purple-block": "purple-block",
+      "pink-block": "pink-block",
+      "orange-block": "orange-block",
+      "lime-block": "lime-block",
+      "white-block": "white-block",
+      "light-blue-block": "light-blue-block",
+    };
+    return blockType in blockClasses ? (
+      <div className={`${blockClasses[blockType]} ${previewClass}`}></div>
+    ) : null;
   };
 
   useEffect(() => {
-    // Ensure preview is updated when rotation changes
     if (selectedBlock) {
-      setPreviewBlock([]); // Reset preview block
+      setPreviewBlock([]); // Tyhjennä esikatselu kun palikka on valittu
     }
   }, [rotation, selectedBlock]);
 
   useEffect(() => {
-    checkIfWon();
-  }
-  , [blocks]);
+    checkIfWon(); // Tarkista voitto joka kerta kun kenttä päivittyy
+  }, [blocks]);
 
   useEffect(() => {
     if (resetGame) {
-      handleReset();
+      handleReset(); // Nollaa peli resetin aikana
     }
   }, [resetGame]);
-
 
   return (
     <>
       <Infopanel />
-      <div
-        className="grid grid-cols-11 w-96 mt-5 border p-2"
-        id="game-board"
-      >
+      <div className="grid grid-cols-11 w-96 mt-5 border p-2" id="game-board">
         {Array.from({ length: 55 }, (_, index) => (
           <div
             key={index}
             className={`box border transition-colors duration-200 ${
               blocks.some((block) => block.position === index) ? "filled" : ""
             }`}
-            onMouseEnter={() => handleGridHover(index)} // Hiiri ruudun päälle
-            onMouseLeave={handleGridLeave} // Hiiri pois ruudusta
-            onClick={() => handleGridClick(index)} // Klikkaa ruutua
+            onMouseEnter={() => handleGridHover(index)}
+            onMouseLeave={handleGridLeave}
+            onClick={() => handleGridClick(index)}
             onContextMenu={(e) => {
-              e.preventDefault(); // Estetään kontekstivalikko
-              rotateBlock(); // Pyöritä palikkaa
+              e.preventDefault();
+              rotateBlock(); // Käännä palikka oikealla klikkauksella
             }}
           >
-            {/* Renderöi pysyvät palikat */}
             {blocks
               .filter((block) => block.position === index)
               .map((block, i) => (
                 <div key={i}>{renderBlock(block.type)}</div>
               ))}
-
-            {/* Renderöi esikatselupalikat */}
             {previewBlock
               .filter((block) => block.index === index)
               .map((block, i) => (
@@ -246,10 +270,12 @@ const Field = ({ isRunning, resetGame, setGameOver }) => {
     </>
   );
 };
+
 Field.propTypes = {
   isRunning: PropTypes.bool.isRequired,
   resetGame: PropTypes.bool.isRequired,
   setGameOver: PropTypes.func.isRequired,
+  currentBlock: PropTypes.string, // Satunnainen palikka
 };
 
 export default Field;
