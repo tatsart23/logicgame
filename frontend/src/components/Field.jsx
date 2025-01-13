@@ -195,6 +195,7 @@ const Field = ({ isRunning, resetGame, setGameOver, currentBlock }) => {
     setUsedBlocks((prev) => [...prev, selectedBlock]);
     setSelectedBlock(null);
     setPreviewBlock([]); // Tyhjennä esikatselu
+    setRotation(0); // Nollaa kulma
   };
 
   // Renderöi palikka kentälle
@@ -234,6 +235,21 @@ const Field = ({ isRunning, resetGame, setGameOver, currentBlock }) => {
       handleReset(); // Nollaa peli resetin aikana
     }
   }, [resetGame]);
+
+// Rotate the block when spacebar is pressed
+useEffect(() => {
+  const handleKeyDown = (event) => {
+    if (event.key === " ") {
+      event.preventDefault(); // Prevent scrolling
+      rotateBlock();
+    }
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+  return () => {
+    window.removeEventListener("keydown", handleKeyDown);
+  };
+}, [rotateBlock]);
 
   return (
     <>
