@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 const Infopanel = () => {
   return (
     <>
@@ -11,7 +13,9 @@ const Infopanel = () => {
           <p className="mb-2">Peliä voi pelata myös mobiililaitteilla.</p>
         </div>
 
-        <button className="absolute bottom-4 border-4 left-4 bg-white text-black-500 border-gray-500 font-bold py-2 px-4 rounded">To Homepage</button>
+        <Link to="/">
+          <button className="absolute bottom-4 border-4 left-4 bg-white text-black-500 border-gray-500 font-bold py-2 px-4 rounded">To Homepage</button>
+        </Link>
       </div>
     </>
   )
