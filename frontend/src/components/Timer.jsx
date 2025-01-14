@@ -12,6 +12,7 @@ const Timer = ({
   onRandomBlock,
   hasClickedRandom,
   setHasClickedRandom,
+  setRemainingTime,
 }) => {
   const [timer, setTimer] = useState(seconds); // Ajastimen tila
   const timerId = useRef(null); // Ajastimen id viittaukseen
@@ -52,6 +53,13 @@ const Timer = ({
 
     return () => clearInterval(timerId.current); // Puhdistus
   }, [isRunning, gameOver, setGameOver, setIsRunning]);
+
+  useEffect(() => {
+    // Update remaining time in the parent component
+    if (typeof setRemainingTime === "function") {
+      setRemainingTime(timer);
+    }
+  }, [timer, setRemainingTime]);
 
   // Käsittele Random-toiminto
   const handleRandomClick = () => {
@@ -118,6 +126,7 @@ Timer.propTypes = {
   onRandomBlock: PropTypes.func.isRequired,
   hasClickedRandom: PropTypes.bool.isRequired,
   setHasClickedRandom: PropTypes.func.isRequired,
+  setRemainingTime: PropTypes.func.isRequired,
 };
 
 export default Timer;
