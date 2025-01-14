@@ -17,6 +17,11 @@ const Field = () => {
   const [rotation, setRotation] = useState(0);
   const [usedBlocks, setUsedBlocks] = useState([]);
   const [isInverted, setIsInverted] = useState(false); // Tracks whether the block is inverted
+  const [remainingTime, setRemainingTime] = useState(null);
+
+
+
+
 
   // Utility: Palikan visualisointi
   const renderBlock = (blockType, isPreview = false) => {
@@ -204,6 +209,8 @@ const Field = () => {
     setIsInverted(false); // Reset inversion
   };
   
+
+
   const inverseBlock = () => {
     if (!selectedBlock) return;
   
@@ -273,24 +280,34 @@ const Field = () => {
         inverseBlock(); // Flip the block instead of rotating
       }
     };
-  
+
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [inverseBlock, selectedBlock]);
   
+  useEffect(() => {
+    if (blocks.length === 55) {
+      setIsRunning(false);
+      alert(`Congratulations! You've won the game with ${remainingTime} seconds remaining!`);
+    }
+  }, [blocks, remainingTime]);
+  
+  
   
 
   const handleReset = () => {
-    setBlocks([]);
-    setUsedBlocks([]);
-    setSelectedBlock(null);
-    setPreviewBlock([]);
-    setRotation(0);
-    setIsInverted(false); 
-
+    setBlocks([]); // Clear all blocks
+    setUsedBlocks([]); // Reset used blocks
+    setSelectedBlock(null); // Clear selection
+    setPreviewBlock([]); // Clear preview
+    setRotation(0); // Reset rotation
+    setIsInverted(false); // Reset inversion
+    setIsRunning(false); // Stop the game
+    setGameOver(false); // Reset any game-over or win state
   };
+  
 
   // Renderöi näkymä
   return (
@@ -310,6 +327,7 @@ const Field = () => {
         onRandomBlock={generateRandomBlock}
         hasClickedRandom={hasClickedRandom}
         setHasClickedRandom={setHasClickedRandom}
+        setRemainingTime={setRemainingTime}
       />
       <div className="grid grid-cols-11 w-96 mt-5 border p-2" id="game-board">
         {Array.from({ length: 55 }, (_, index) => {
