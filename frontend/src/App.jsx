@@ -7,10 +7,8 @@ function App() {
     <Router>
       <div className="container mx-auto px-4">
         <Routes>
-          {/* Lisää reitit tähän */}
           <Route path="/" element={<Home />} />
-          <Route path="/noodle" element={<Field />} />
-          {/* Lisää muita reittejä tarpeen mukaan */}
+          <Route path="/noodle" element={<Field />} /> 
         </Routes>
       </div>
     </Router>
