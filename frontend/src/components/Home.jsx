@@ -1,17 +1,14 @@
-import { Link } from "react-router-dom";
+import Card from "./Card";
 
 const Home = () => {
   return (
-    <div className="text-center mt-10">
-      <h1 className="text-3xl font-bold text-blue-600">TERETULEMAST EESTIMANTEREEL</h1>
+    <section className="text-center mt-10">
+      <h1 className="text-3xl font-lobster text-red-600">Logiikkapelit</h1>
       <div className="mt-5">
-        <Link to="/noodle">
-          <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-            Mene Pelaamaan
-          </button>
-        </Link>
+        
+        <Card />
       </div>
-    </div>
+    </section>
   );
 };
 
