@@ -4,7 +4,6 @@ import blockShapes from "./blockShapes";
 import Infopanel from "./Infopanel";
 import Timer from "./Timer";
 
-
 const Field = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [gameOver, setGameOver] = useState(false);
@@ -18,10 +17,6 @@ const Field = () => {
   const [usedBlocks, setUsedBlocks] = useState([]);
   const [isInverted, setIsInverted] = useState(false); // Tracks whether the block is inverted
   const [remainingTime, setRemainingTime] = useState(null);
-
-
-
-
 
   // Utility: Palikan visualisointi
   const renderBlock = (blockType, isPreview = false) => {
@@ -45,7 +40,7 @@ const Field = () => {
     ) : null;
   };
 
-  // Peli logiikka
+  //Resetti
   const handleGameReset = () => {
     setIsRunning(false);
     setGameOver(false);
@@ -53,9 +48,11 @@ const Field = () => {
     setTimeout(() => setResetGame(false), 0);
     setCurrentBlock(null);
     setHasClickedRandom(false);
-    handleReset();
+    setBlocks([]);
+    setSelectedBlock(null);
   };
 
+  // Random palikan generointi
   const generateRandomBlock = () => {
     const blockTypes = Object.keys(blockShapes);
     const randomBlock =
@@ -63,6 +60,7 @@ const Field = () => {
     setCurrentBlock(randomBlock);
   };
 
+  // Random palikan asettaminen
   const placeRandomBlock = (blockType) => {
     if (usedBlocks.includes(blockType)) return;
 
@@ -81,18 +79,17 @@ const Field = () => {
       const shape = rotations[rotationIndex];
 
       const previewPositions = shape
-      .map(({ row, col }) =>
-        isInverted
-          ? { row: -row, col } // Apply inversion if necessary
-          : { row, col }
-      )
-      .map(({ row, col }) => ({
-        index: (targetRow + row) * 11 + (targetCol + col),
-        row: targetRow + row,
-        col: targetCol + col,
-        type: selectedBlock,
-  }));
-
+        .map(({ row, col }) =>
+          isInverted
+            ? { row: -row, col } // Apply inversion if necessary
+            : { row, col }
+        )
+        .map(({ row, col }) => ({
+          index: (targetRow + row) * 11 + (targetCol + col),
+          row: targetRow + row,
+          col: targetCol + col,
+          type: selectedBlock,
+        }));
 
       const isOutOfBounds = previewPositions.some(
         ({ row, col }) => row < 0 || col < 0 || col >= 11 || row >= 5
@@ -112,20 +109,22 @@ const Field = () => {
     }
   };
 
+
   useEffect(() => {
     if (currentBlock) placeRandomBlock(currentBlock);
   }, [currentBlock]);
 
+  // Käsittelijät
   const handleGridHover = (index) => {
     if (!selectedBlock) return;
-  
+
     const targetRow = Math.floor(index / 11);
     const targetCol = index % 11;
-  
+
     const shapeData = blockShapes[selectedBlock];
     const rotations = shapeData.rotations || [shapeData];
     const shape = rotations[(rotation / 90) % rotations.length];
-  
+
     const previewPositions = shape
       .map(({ row, col }) =>
         isInverted
@@ -138,14 +137,13 @@ const Field = () => {
         col: targetCol + col,
         type: selectedBlock,
       }));
-  
+
     const isOutOfBounds = previewPositions.some(
       ({ row, col }) => row < 0 || col < 0 || col >= 11 || row >= 5
     );
-  
+
     setPreviewBlock(isOutOfBounds ? [] : previewPositions);
   };
-  
 
   const handleGridLeave = () => setPreviewBlock([]);
 
@@ -156,32 +154,32 @@ const Field = () => {
     }
     if (!selectedBlock) return;
 
-     // Prevent duplicate block use
+    // Prevent duplicate block use
     if (usedBlocks.includes(selectedBlock)) {
       alert("This block has already been used!");
       return;
     }
-  
+
     const targetRow = Math.floor(index / 11);
     const targetCol = index % 11;
-  
+
     const shapeData = blockShapes[selectedBlock];
     const shape = shapeData.rotations
       ? shapeData.rotations[(rotation / 90) % shapeData.rotations.length]
       : shapeData;
-  
+
     // Apply inversion if necessary
     const finalShape = isInverted
       ? shape.map(({ row, col }) => ({ row: -row, col }))
       : shape;
-  
+
     const newPositions = finalShape.map(({ row, col }) => ({
       index: (targetRow + row) * 11 + (targetCol + col),
       row: targetRow + row,
       col: targetCol + col,
       type: selectedBlock,
     }));
-  
+
     const isOutOfBounds = newPositions.some(
       ({ row, col }) => row < 0 || col < 0 || col >= 11 || row >= 5
     );
@@ -189,7 +187,7 @@ const Field = () => {
       alert("Placement out of bounds!");
       return;
     }
-  
+
     const isOverlapping = newPositions.some(({ index }) =>
       blocks.some((block) => block.position === index)
     );
@@ -197,10 +195,13 @@ const Field = () => {
       alert("Blocks are overlapping!");
       return;
     }
-  
+
     setBlocks((prev) => [
       ...prev,
-      ...newPositions.map(({ index }) => ({ type: selectedBlock, position: index })),
+      ...newPositions.map(({ index }) => ({
+        type: selectedBlock,
+        position: index,
+      })),
     ]);
     setUsedBlocks((prev) => [...prev, selectedBlock]);
     setSelectedBlock(null);
@@ -208,31 +209,30 @@ const Field = () => {
     setRotation(0); // Reset rotation
     setIsInverted(false); // Reset inversion
   };
-  
 
-
+  //palikan flippaus
   const inverseBlock = () => {
     if (!selectedBlock) return;
-  
+
     setIsInverted((prev) => !prev); // Toggle the inversion state
-  
+
     const shapeData = blockShapes[selectedBlock];
     const rotations = shapeData.rotations || [shapeData];
     const currentShape = rotations[(rotation / 90) % rotations.length];
-  
+
     // Flip the block vertically (or horizontally if needed)
     const flippedShape = currentShape.map(({ row, col }) => ({
       row: -row, // Flip vertically
       col,
     }));
-  
+
     // Update the preview block with the inverted shape
     setPreviewBlock((prevPreview) => {
       if (!prevPreview || prevPreview.length === 0) return [];
-  
+
       const targetRow = prevPreview[0].row; // Reference row from current preview
       const targetCol = prevPreview[0].col; // Reference column from current preview
-  
+
       return flippedShape.map(({ row, col }) => ({
         index: (targetRow + row) * 11 + (targetCol + col),
         row: targetRow + row,
@@ -241,29 +241,28 @@ const Field = () => {
       }));
     });
   };
-  
 
-
+  //palikan kääntäminen
   const rotateBlock = () => {
     if (!selectedBlock) return;
-  
+
     const shapeData = blockShapes[selectedBlock];
     const rotations = shapeData.rotations || [shapeData];
-  
+
     // Apply inversion after rotation
     const newRotation = (rotation + 90) % 360;
     const rotatedShape = rotations[(newRotation / 90) % rotations.length];
     const finalShape = isInverted
       ? rotatedShape.map(({ row, col }) => ({ row: -row, col }))
       : rotatedShape;
-  
+
     setRotation(newRotation); // Update rotation
     setPreviewBlock((prevPreview) => {
       if (!prevPreview || prevPreview.length === 0) return [];
-  
+
       const targetRow = prevPreview[0].row; // Reference row from current preview
       const targetCol = prevPreview[0].col; // Reference column from current preview
-  
+
       return finalShape.map(({ row, col }) => ({
         index: (targetRow + row) * 11 + (targetCol + col),
         row: targetRow + row,
@@ -286,28 +285,15 @@ const Field = () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [inverseBlock, selectedBlock]);
-  
+
   useEffect(() => {
     if (blocks.length === 55) {
       setIsRunning(false);
-      alert(`Congratulations! You've won the game with ${remainingTime} seconds remaining!`);
+      alert(
+        `Congratulations! You've won the game with ${remainingTime} seconds remaining!`
+      );
     }
   }, [blocks, remainingTime]);
-  
-  
-  
-
-  const handleReset = () => {
-    setBlocks([]); // Clear all blocks
-    setUsedBlocks([]); // Reset used blocks
-    setSelectedBlock(null); // Clear selection
-    setPreviewBlock([]); // Clear preview
-    setRotation(0); // Reset rotation
-    setIsInverted(false); // Reset inversion
-    setIsRunning(false); // Stop the game
-    setGameOver(false); // Reset any game-over or win state
-  };
-  
 
   // Renderöi näkymä
   return (
@@ -329,7 +315,11 @@ const Field = () => {
         setHasClickedRandom={setHasClickedRandom}
         setRemainingTime={setRemainingTime}
       />
-      <div className="grid grid-cols-11 w-96 mt-5 border p-2" id="game-board">
+      <div
+        className="grid grid-cols-11 w-96 mt-5 border p-2"
+        id="game-board"
+        onContextMenu={(e) => e.preventDefault()}
+      >
         {Array.from({ length: 55 }, (_, index) => {
           const isFilled = blocks.some((block) => block.position === index);
           const isPreview = previewBlock.some((block) => block.index === index);
