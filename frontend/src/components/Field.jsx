@@ -46,6 +46,7 @@ const Field = () => {
     setGameOver(false);
     setResetGame(true);
     setTimeout(() => setResetGame(false), 0);
+    setUsedBlocks([]);
     setCurrentBlock(null);
     setHasClickedRandom(false);
     setBlocks([]);
@@ -152,34 +153,51 @@ const Field = () => {
       alert("The game is not running! Press Start to begin.");
       return;
     }
-    if (!selectedBlock) return;
-
-    // Prevent duplicate block use
-    if (usedBlocks.includes(selectedBlock)) {
-      alert("This block has already been used!");
+  
+    // Check if the clicked cell has a block
+    const clickedBlock = blocks.find((block) => block.position === index);
+  
+    if (clickedBlock) {
+      // If a block is clicked, find all parts of the same block
+      const blockType = clickedBlock.type;
+      const blockParts = blocks.filter((block) => block.type === blockType);
+  
+      // Set the block type as selected and remove all its parts
+      setSelectedBlock(blockType);
+      setBlocks((prevBlocks) =>
+        prevBlocks.filter((block) => block.type !== blockType)
+      );
+      setUsedBlocks((prevUsedBlocks) =>
+        prevUsedBlocks.filter((usedType) => usedType !== blockType)
+      );
+      setPreviewBlock([]); // Clear the preview
       return;
     }
-
+  
+    if (!selectedBlock) {
+      // If no block is selected, do nothing
+      return;
+    }
+  
     const targetRow = Math.floor(index / 11);
     const targetCol = index % 11;
-
+  
     const shapeData = blockShapes[selectedBlock];
     const shape = shapeData.rotations
       ? shapeData.rotations[(rotation / 90) % shapeData.rotations.length]
       : shapeData;
-
-    // Apply inversion if necessary
+  
     const finalShape = isInverted
       ? shape.map(({ row, col }) => ({ row: -row, col }))
       : shape;
-
+  
     const newPositions = finalShape.map(({ row, col }) => ({
       index: (targetRow + row) * 11 + (targetCol + col),
       row: targetRow + row,
       col: targetCol + col,
       type: selectedBlock,
     }));
-
+  
     const isOutOfBounds = newPositions.some(
       ({ row, col }) => row < 0 || col < 0 || col >= 11 || row >= 5
     );
@@ -187,7 +205,7 @@ const Field = () => {
       alert("Placement out of bounds!");
       return;
     }
-
+  
     const isOverlapping = newPositions.some(({ index }) =>
       blocks.some((block) => block.position === index)
     );
@@ -195,7 +213,8 @@ const Field = () => {
       alert("Blocks are overlapping!");
       return;
     }
-
+  
+    // Place the block
     setBlocks((prev) => [
       ...prev,
       ...newPositions.map(({ index }) => ({
@@ -204,7 +223,7 @@ const Field = () => {
       })),
     ]);
     setUsedBlocks((prev) => [...prev, selectedBlock]);
-    setSelectedBlock(null);
+    setSelectedBlock(null); // Clear selected block
     setPreviewBlock([]); // Clear preview
     setRotation(0); // Reset rotation
     setIsInverted(false); // Reset inversion
