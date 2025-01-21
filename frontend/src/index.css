@@ -79,3 +79,29 @@
 .box.drag-over {
   background-color: transparent; /* Ei taustaväriä vedettäessä */
 }
+
+@layer utilities {
+  .box {
+    @apply cursor-move; /* Käden kuva hiiren päällä */
+  }
+
+  .modal-wrapper{
+    @apply relative bg-gradient-to-b from-blue-200 to-blue-400 rounded-2xl overflow-hidden;
+  }
+  
+  .modal-wrapper::before{
+    background: conic-gradient(
+      rgb(235, 7, 7) 0deg,
+      rgb(235, 7, 56) 0deg,
+      transparent 40deg
+    );
+
+    @apply h-[150%] w-[150%] content-[''] left-[-25%] top-[-25%] absolute animate-border-spin;
+  }
+  
+  .modal-content{
+    @apply absolute w-[calc(100%-2px)] h-[calc(100%-2px)] bg-gradient-to-b from-blue-800 to-blue-900 rounded-2xl top-[1px] left-[1px]
+  }
+  
+}
+

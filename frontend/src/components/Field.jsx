@@ -3,6 +3,7 @@ import Blocks from "./Blocks";
 import blockShapes from "./blockShapes";
 import Infopanel from "./Infopanel";
 import Timer from "./Timer";
+import Modal from "./Modal";
 
 const Field = () => {
   const [isRunning, setIsRunning] = useState(false);
@@ -17,6 +18,7 @@ const Field = () => {
   const [usedBlocks, setUsedBlocks] = useState([]);
   const [isInverted, setIsInverted] = useState(false); // Tracks whether the block is inverted
   const [remainingTime, setRemainingTime] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Utility: Palikan visualisointi
   const renderBlock = (blockType, isPreview = false) => {
@@ -308,9 +310,7 @@ const Field = () => {
   useEffect(() => {
     if (blocks.length === 55) {
       setIsRunning(false);
-      alert(
-        `Congratulations! You've won the game with ${remainingTime} seconds remaining!`
-      );
+      setIsModalOpen(true);
     }
   }, [blocks, remainingTime]);
 
@@ -334,6 +334,7 @@ const Field = () => {
         setHasClickedRandom={setHasClickedRandom}
         setRemainingTime={setRemainingTime}
       />
+      {isModalOpen && <Modal onClose={() => setIsModalOpen(false)} />} 
       <div
         className="grid grid-cols-11 w-96 mt-5 border p-2"
         id="game-board"
