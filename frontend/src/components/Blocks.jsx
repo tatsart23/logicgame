@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 const Blocks = ({ handleBlockClick }) => {
   return (
     <>
-      <div className="mt-2 p-3 grid grid-cols-3 bg-blue-500 border-4 rounded-lg border-gray-500 gap-4">
+      <div className="mt-2 p-3 grid grid-cols-3 bg-blue-500 border-4 rounded-lg border-gray-500 gap-4 z-10">
         <div
           className="grid grid-cols-2 grid-rows-3 w-16 group"
           style={{ height: "95px" }}

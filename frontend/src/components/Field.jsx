@@ -20,6 +20,40 @@ const Field = () => {
   const [remainingTime, setRemainingTime] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const infoPanelData = {
+    title: 'Kanoodle',
+    sections: [
+      {
+        heading: 'Pelin kuvaus',
+        content: [
+          'Kanoodle on pulmapeli, jossa tavoitteena on sijoittaa palikoita pelilaudalle.',
+          'Peli päättyy, kun palikoita ei enää mahdu laudalle.',
+          'Peli alkaa, kun painat aloita-painiketta.',
+          'Peli loppuu, kun aika loppuu tai pelilauta on täynnä.',
+        ],
+      },
+      {
+        heading: 'Ohjeet',
+        content: [
+          'Valitse palikka klikkaamalla sitä.',
+          'Pyöritä palikkaa hiiren oikealla painikkeella.',
+          'Käännä palikka painamalla välilyöntiä.',
+          'Laita palikka laudalle klikkaamalla kenttää.',
+          'Palikoita voi uudelleen asettaa klikkaamalla sitä hiiren oikealla painikkeella.',
+        ],
+      },
+      {
+        heading: 'Pelimuodot',
+        content: [
+          'Peli sisältää kaksi eri pelimuotoa: Normaali(Start)',
+          'Random (Peli asettaa satunnaisen palikan satunnaiseen paikkaan)',
+        ],
+      },
+    ],
+    buttonText: 'To Homepage',
+    buttonLink: '/',
+  };
+
   // Utility: Palikan visualisointi
   const renderBlock = (blockType, isPreview = false) => {
     const previewClass = isPreview ? "opacity-50" : "";
@@ -317,10 +351,7 @@ const Field = () => {
   // Renderöi näkymä
   return (
     <>
-      <h1 className="text-2xl font-bold text-center text-red-500 my-4">
-        Kanoodle
-      </h1>
-      <Infopanel />
+      <Infopanel {...infoPanelData}/>
       <Timer
         seconds={120}
         setIsRunning={setIsRunning}
@@ -336,7 +367,7 @@ const Field = () => {
       />
       {isModalOpen && <Modal onClose={() => setIsModalOpen(false)} />} 
       <div
-        className="grid grid-cols-11 w-96 mt-5 border p-2"
+        className="grid grid-cols-11 w-96 mt-5 border p-2 bg-gray-200 rounded-md"
         id="game-board"
         onContextMenu={(e) => e.preventDefault()}
       >

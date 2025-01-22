@@ -6,11 +6,26 @@ import Home from "./components/Home";
 function App() {
   return (
     <Router>
-      <div className="container mx-auto px-4">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/noodle" element={<Field />} /> 
-        </Routes>
+      <div className="bg-wrapper">
+        <div className="bg-box">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+        <div className="container mx-auto px-4 ">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/noodle" element={<Field />} /> 
+          </Routes>
+        </div>
       </div>
     </Router>
   );
