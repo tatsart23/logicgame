@@ -1,30 +1,29 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"], // Sisältö, jota Tailwind käyttää
   theme: {
     extend: {
       fontFamily: {
-        lobster: ['Lobster', 'serif'],
+        lobster: ["Lobster", "serif"], // Mukautettu fontti "Lobster"
       },
       keyframes: {
-        'border-spin':{
-          '100%': {
-            transform: 'rotate(-360deg)',
+        // Mukautetut keyframes
+        "border-spin": {
+          "100%": {
+            transform: "rotate(-360deg)", // Animaatio pyörittämiseen
           },
         },
       },
       animation: {
-        'border-spin': 'border-spin 7s linear infinite',
-      }
+        // Mukautetut animaatiot
+        "border-spin": "border-spin 7s linear infinite",
+      },
     },
   },
   plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
-    require('@tailwindcss/aspect-ratio'),
-    require('@tailwindcss/line-clamp'),
+    require("@tailwindcss/forms"),
+    require("@tailwindcss/typography"),
+    require("@tailwindcss/aspect-ratio"),
+    require("tailwindcss-motion"), // Lisää liike- ja animaatiotuki
   ],
-}
+};

@@ -23,9 +23,9 @@ const Modal = ({ onClose }) => {
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 ">
       <ReactConfetti width={dimensions.width} height={dimensions.height} />
-      <div className="modal-wrapper h-[300px] w-[400px]">
+      <div className="modal-wrapper h-[300px] w-[400px] motion-scale-in-[0.5] motion-translate-x-in-[-120%] motion-translate-y-in-[-60%] motion-opacity-in-[33%] motion-rotate-in-[-1080deg] motion-blur-in-[10px] motion-delay-[0.38s]/scale motion-duration-[0.38s]/opacity motion-duration-[1.20s]/rotate motion-duration-[0.15s]/blur motion-delay-[0.60s]/blur motion-ease-spring-bouncier">
         <div className="modal-content flex items-center justify-center flex-col">
           <h1 className="text-3xl font-bold mb-4 flex items-center">
             🏆 Congratulations! 🏆

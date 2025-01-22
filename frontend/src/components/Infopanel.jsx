@@ -1,35 +1,67 @@
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
+import { ArrowLeftFromLine, ArrowRightFromLine } from "lucide-react";
+import { useState } from "react";
 
-const Infopanel = () => {
+const Infopanel = ({ title, sections, buttonText, buttonLink }) => {
+  const [expanded, setExpanded] = useState(false);
+
   return (
-    <>
-      <div className="fixed top-0 left-0 bg-blue-500 w-96 h-full border-r-4 border-r-gray-500 ">
-        <h2 className="text-white text-lg font-bold p-4">Kanoodle</h2>
-        <div className="p-4 text-black bg-white m-2 rounded font-semibold">
-          <p className="mb-2">Kanoodle on pulmapeli, jossa tavoitteena on sijoittaa palikoita pelilaudalle.</p>
-          <p className="mb-2">Peli päättyy, kun palikoita ei enää mahdu laudalle.</p>
-          <p className="mb-2">Peli alkaa, kun painat aloita-painiketta.</p>
-          <p className="mb-2">Peli loppuu, kun aika loppuu tai pelilauta on täynnä.</p>
-          <p className="mb-2">Peliä voi pelata myös mobiililaitteilla.</p>
-        </div>
-        <h2 className="text-white text-lg font-bold p-4">Ohjeet</h2>
-        <div className="p-4 text-black bg-white m-2 rounded font-semibold">
-          <p className="mb-2">Valitse palikka klikkaamalla sitä.</p>
-          <p className="mb-2">Pyöritä palikkaa hiiren oikealla painikkeella.</p>
-          <p className="mb-2">Käännä palikka painamalla välilyöntiä.</p>
-          <p className="mb-2">Laita palikka laudalle klikkaamalla kenttää.</p>
-          <p className="mb-2">Palikoita voi uudelleen asettaa klikkaamalla sitä hiiren oikealla painikkeella</p>
-        </div>
-        <h2 className="text-white text-lg font-bold p-4">Pelimuodot</h2>
-        <div className="p-4 text-black bg-white m-2 rounded font-semibold">
-          <p className="mb-2">Peli sisältää kaksi eri pelimuotoa: Normaali(Start) <br/> Random (Peli asettaa satunnaisen palikan satunnaiseen paikkaan)</p>
-        </div>
-        <Link to="/">
-          <button className="absolute bottom-4 border-4 left-4 bg-white text-black-500 border-gray-500 font-bold py-2 px-4 rounded">To Homepage</button>
-        </Link>
+    <div
+      className={`fixed top-0 left-0 bg-blue-500 h-full border-r-4 transition-all duration-400
+      ${expanded ? "w-96 border-r-gray-500" : "w-0 border-r-0"}`}
+    >
+      <div className="flex items-center justify-between p-4">
+        {expanded && <h2 className="text-white text-lg font-bold">{title}</h2>}
+        <button
+          onClick={() => setExpanded((curr) => !curr)}
+          className="flex items-center justify-center w-8 h-8 bg-transparent"
+        >
+          {expanded ? (
+            <ArrowLeftFromLine size={24} color="white" />
+          ) : (
+            <ArrowRightFromLine
+              size={24}
+              color="black"
+              className="bg-white p-1 h-8 w-8 rounded-sm"
+            />
+          )}
+        </button>
       </div>
-    </>
-  )
-}
+      {expanded &&
+        sections.map((section, index) => (
+          <div
+            key={index}
+            className="p-4 text-black bg-white m-2 rounded font-semibold"
+          >
+            <h3 className="text-lg font-bold mb-2">{section.heading}</h3>
+            {section.content.map((paragraph, idx) => (
+              <p key={idx} className="mb-2">
+                {paragraph}
+              </p>
+            ))}
+          </div>
+        ))}
+      {expanded && (
+        <Link to={buttonLink}>
+          <button className="absolute bottom-4 left-4 border-4 bg-white text-black-500 border-gray-500 font-bold py-2 px-4 rounded">
+            {buttonText}
+          </button>
+        </Link>
+      )}
+    </div>
+  );
+};
+Infopanel.propTypes = {
+  title: PropTypes.string.isRequired,
+  sections: PropTypes.arrayOf(
+    PropTypes.shape({
+      heading: PropTypes.string.isRequired,
+      content: PropTypes.arrayOf(PropTypes.string).isRequired,
+    })
+  ).isRequired,
+  buttonText: PropTypes.string.isRequired,
+  buttonLink: PropTypes.string.isRequired,
+};
 
-export default Infopanel
+export default Infopanel;
