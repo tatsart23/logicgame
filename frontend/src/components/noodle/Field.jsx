@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Blocks from "./Blocks";
 import blockShapes from "./blockShapes";
-import Infopanel from "./Infopanel";
+import Infopanel from "../Infopanel";
 import Timer from "./Timer";
 import Modal from "./Modal";
 

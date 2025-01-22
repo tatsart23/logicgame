@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Field from "./components/Field";
+import Field from "./components/noodle/Field";
 import Home from "./components/Home";
+import Board from "./components/tileswapper/Board";
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/noodle" element={<Field />} /> 
+            <Route path="/tileswap" element={<Board />} />
           </Routes>
         </div>
       </div>

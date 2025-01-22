@@ -8,7 +8,7 @@ const Infopanel = ({ title, sections, buttonText, buttonLink }) => {
 
   return (
     <div
-      className={`fixed top-0 left-0 bg-blue-500 h-full border-r-4 transition-all duration-400
+      className={`fixed top-0 left-0 bg-blue-500 h-full border-r-4 rounded-xl transition-all duration-400
       ${expanded ? "w-96 border-r-gray-500" : "w-0 border-r-0"}`}
     >
       <div className="flex items-center justify-between p-4">
@@ -44,7 +44,7 @@ const Infopanel = ({ title, sections, buttonText, buttonLink }) => {
         ))}
       {expanded && (
         <Link to={buttonLink}>
-          <button className="absolute bottom-4 left-4 border-4 bg-white text-black-500 border-gray-500 font-bold py-2 px-4 rounded">
+          <button className="absolute bottom-4 left-4 border-2 bg-white text-black-500 border-gray-500 font-bold py-2 px-4 rounded hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition duration-200">
             {buttonText}
           </button>
         </Link>

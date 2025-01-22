@@ -81,26 +81,26 @@ const Timer = ({
       {gameOver ? (
         <h2 className="m-2 text-red-600 text-center">Game Over!</h2>
       ) : (
-        <h2 className="m-2 text-center">Timer: {formatTime(timer)}</h2>
+        <h2 className="m-2 text-center bg-black text-red-700 text-5xl p-2 rounded-md border-2 border-red-500 border-dotted">Timer: {formatTime(timer)}</h2>
       )}
 
       {/* Painikkeet */}
       <div className="flex justify-center space-x-2 mt-4">
         <button
-          className="rounded bg-lime-600 text-white p-2 hover:bg-lime-700"
+          className="px-4 py-2 rounded-md border border-black bg-lime-500 text-black text-xl hover:bg-lime-300 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition duration-200 "
           onClick={() => setIsRunning(true)}
           disabled={isRunning || gameOver}
         >
           Start
         </button>
         <button
-          className="rounded bg-red-600 text-white p-2 hover:bg-red-700"
+          className="px-4 py-2 rounded-md border border-black bg-red-500 text-black text-xl hover:bg-red-300 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition duration-200"
           onClick={handleGameReset}
         >
           Reset
         </button>
         <button
-          className={`rounded p-2 text-white ${
+          className={`px-4 py-2 rounded-md border border-black text-black text-xl hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition duration-200 ${
             hasClickedRandom
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-amber-500 hover:bg-amber-600"
