@@ -4,27 +4,22 @@ const TileData = {
       {
         heading: 'Pelin kuvaus',
         content: [
-          'Kanoodle on pulmapeli, jossa tavoitteena on sijoittaa palikoita pelilaudalle.',
-          'Peli päättyy, kun palikoita ei enää mahdu laudalle.',
-          'Peli alkaa, kun painat aloita-painiketta.',
-          'Peli loppuu, kun aika loppuu tai pelilauta on täynnä.',
+          'Peli on perinteinen palapeli, jossa tavoitteena on järjestää palikat oikeaan järjestykseen.',
+          'Peli on ratkaistu, kun palikat ovat järjestyksessä ja tyhjä ruutu on oikeassa alakulmassa.',
+          'Peli alkaa, kun painat start-painiketta.',
         ],
       },
       {
         heading: 'Ohjeet',
         content: [
-          'Valitse palikka klikkaamalla sitä.',
-          'Pyöritä palikkaa hiiren oikealla painikkeella.',
-          'Käännä palikka painamalla välilyöntiä.',
-          'Laita palikka laudalle klikkaamalla kenttää.',
-          'Palikoita voi uudelleen asettaa klikkaamalla sitä hiiren oikealla painikkeella.',
+          'Siirrä palikoita klikkaamalla niitä hiirellä.',
+          'Palikka siirtyy tyhjään ruutuun, jos se on vierekkäin tyhjän ruudun kanssa.',
         ],
       },
       {
         heading: 'Pelimuodot',
         content: [
-          'Peli sisältää kaksi eri pelimuotoa: Normaali(Start)',
-          'Random (Peli asettaa satunnaisen palikan satunnaiseen paikkaan)',
+          'Peli on tarkoitus ratkaista mahdollisimman nopeasti.',
         ],
       },
     ],

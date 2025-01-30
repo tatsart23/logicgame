@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import ReactConfetti from "react-confetti";
 
-const Modal = ({ onClose }) => {
+const Modal = ({ onClose, gameTime }) => {
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -22,6 +22,10 @@ const Modal = ({ onClose }) => {
     };
   }, []);
 
+  const minutes = Math.floor(gameTime / 60000);  
+  const seconds = Math.floor((gameTime % 60000) / 1000);  
+  const milliseconds = (gameTime % 1000).toString().padStart(3, "0");  
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 ">
       <ReactConfetti width={dimensions.width} height={dimensions.height} />
@@ -31,6 +35,10 @@ const Modal = ({ onClose }) => {
             🏆 Congratulations! 🏆
           </h1>
           <p className="mb-6">You won the game!</p>
+          <p className="mb-6">
+            Your time: {minutes}:{seconds.toString().padStart(2, "0")}.
+            {milliseconds}
+          </p>
           <button
             onClick={onClose}
             className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
@@ -42,8 +50,10 @@ const Modal = ({ onClose }) => {
     </div>
   );
 };
+
 Modal.propTypes = {
   onClose: PropTypes.func.isRequired,
+  gameTime: PropTypes.number.isRequired,  // Muista lisätä propTypes
 };
 
 export default Modal;
