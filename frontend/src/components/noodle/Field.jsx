@@ -20,6 +20,7 @@ const Field = () => {
   const [isInverted, setIsInverted] = useState(false); // Tracks whether the block is inverted
   const [remainingTime, setRemainingTime] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [finalTime, setFinalTime] = useState(null);
 
   // Utility: Palikan visualisointi
   const renderBlock = (blockType, isPreview = false) => {
@@ -294,6 +295,32 @@ const Field = () => {
     });
   };
 
+
+  //yhteys serveriin ja tallennus leaderboartdiin
+  const submitScore = async (name, score) => {
+    try {
+      const response = await fetch("http://localhost:5000/leaderboard", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, score }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to submit score");
+      }
+  
+      console.log("Score submitted successfully");
+    } catch (error) {
+      console.error("Error submitting score:", error);
+    }
+  };
+  
+
+
+
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === " ") {
@@ -312,8 +339,18 @@ const Field = () => {
     if (blocks.length === 55) {
       setIsRunning(false);
       setIsModalOpen(true);
+      setFinalTime(remainingTime);
+      
+      // Replace with player's name and final score
+      const playerName = prompt("Enter your name:");
+      const finalScore = remainingTime; //Using remaining time as score
+  
+      if (playerName) {
+        submitScore(playerName, finalScore);
+      }
     }
   }, [blocks, remainingTime]);
+  
 
   // Renderöi näkymä
   return (
@@ -332,7 +369,7 @@ const Field = () => {
         setHasClickedRandom={setHasClickedRandom}
         setRemainingTime={setRemainingTime}
       />
-      {isModalOpen && <Modal onClose={() => setIsModalOpen(false)} />} 
+      {isModalOpen && <Modal onClose={() => setIsModalOpen(false)} gameTime={finalTime} />}
       <div
         className="grid grid-cols-11 w-96 mt-5 border p-2 bg-gray-200 rounded-md"
         id="game-board"
