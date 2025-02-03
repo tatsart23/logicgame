@@ -56,7 +56,7 @@ const Board = () => {
           >
             {tile && (
               <div
-                className="bg-transparent w-14 h-14 flex justify-center items-center text-2xl font-bold hover:scale-[1.40] hover:border-2 hover:border-red-500 transition duration-900"
+                className="bg-transparent w-14 h-14 flex justify-center items-center text-2xl font-bold hover:scale-[1.40] hover:border-2 border-red-500 transition duration-900"
                 style={{
                   transition: "transform 0.4s ease-in-out",
                   ...(animate[index] || {}),
