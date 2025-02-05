@@ -295,26 +295,6 @@ const Field = () => {
     });
   };
 
-  //yhteys serveriin ja tallennus leaderboartdiin
-  const submitScore = async (name, score) => {
-    try {
-      const response = await fetch("http://localhost:5000/leaderboard", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, score }),
-      });
-  
-      if (!response.ok) {
-        throw new Error("Failed to submit score");
-      }
-  
-      console.log("Score submitted successfully");
-    } catch (error) {
-      console.error("Error submitting score:", error);
-    }
-  };
   
   useEffect(() => {
     const handleKeyDown = (event) => {

@@ -38,16 +38,17 @@ app.get("/leaderboard", (req, res) => {
 // Add new score
 app.post("/leaderboard", (req, res) => {
   const { name, score } = req.body;
+  
   if (!name || score == null) {
     return res.status(400).json({ error: "Name and score are required." });
   }
+
   db.run(
     "INSERT INTO leaderboard (name, score) VALUES (?, ?)",
     [name, score],
     function (err) {
       if (err) {
-        res.status(500).json({ error: err.message });
-        return;
+        return res.status(500).json({ error: err.message });
       }
       res.json({ id: this.lastID, name, score });
     }
