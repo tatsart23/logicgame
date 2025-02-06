@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Infopanel from "../Infopanel";
 import FlappyData from '../../data/FlappyData';
+import backgroundImage from '../../assets/img/background.jpg';
 
 const Flappy = () => {
   const [birdY, setBirdY] = useState(250);
@@ -8,6 +9,8 @@ const Flappy = () => {
   const [score, setScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [birdRotation, setBirdRotation] = useState(0); // Rotation for bird
+  const [bgPositionX, setBgPositionX] = useState(0); // Parallax position
   const gameLoopRef = useRef(null);
   const pipeTimerRef = useRef(null);
 
@@ -15,7 +18,8 @@ const Flappy = () => {
   useEffect(() => {
     if (isPlaying && !isGameOver) {
       gameLoopRef.current = setInterval(() => {
-        setBirdY(y => y + 4); // Gravity effect
+        setBirdY(y => y + 4);
+        setBirdRotation(rotation => Math.min(rotation + 10, 90)); // Bird falls down
       }, 50);
     }
     return () => clearInterval(gameLoopRef.current);
@@ -39,32 +43,32 @@ const Flappy = () => {
       const movePipes = setInterval(() => {
         setPipes(prev =>
           prev
-            .map(pipe => ({ ...pipe, x: pipe.x - 5 })) // Move left
-            .filter(pipe => pipe.x > -50) // Remove off-screen pipes
+            .map(pipe => ({ ...pipe, x: pipe.x - 5 }))
+            .filter(pipe => pipe.x > -50)
         );
       }, 50);
-
       return () => clearInterval(movePipes);
     }
   }, [isPlaying, isGameOver]);
 
-  // Jump action
+  // Handle spacebar press
   const jump = useCallback(() => {
     if (!isPlaying) setIsPlaying(true);
-    setBirdY(y => y - 60); // Jump effect
+    setBirdY(y => y - 60);
+    setBirdRotation(-30); // Bird jumps upwards
   }, [isPlaying]);
 
-    // Handle spacebar press
-    useEffect(() => {
-        const handleKeyDown = (event) => {
-          if (event.code === "Space") {
-            jump();
-          }
-        };
-    
-        window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
-      }, [jump]);
+  // Handle keydown for spacebar
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.code === "Space") {
+        jump();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [jump]);
 
   // Collision detection and game over logic
   useEffect(() => {
@@ -101,25 +105,62 @@ const Flappy = () => {
     setIsPlaying(false);
   };
 
+  // Parallax Effect
+  useEffect(() => {
+    if (isPlaying) {
+      const moveBackground = setInterval(() => {
+        setBgPositionX((prevPos) => {
+          const newPos = prevPos - 1;
+          return newPos <= -400 ? 0 : newPos;
+        });
+      }, 50);
+      return () => clearInterval(moveBackground);
+    }
+  }, [isPlaying]);
+
+
   return (
-    
-    <div className="relative w-[400px] h-[600px] bg-sky-200 overflow-hidden mt-20" onClick={jump}>
-        <Infopanel {...FlappyData} />
+    <div className="relative w-[400px] h-[600px] overflow-hidden mt-20">
+        
+        <div
+            className="absolute w-full h-full bg-repeat-x"
+            style={{
+                backgroundImage: `url(${backgroundImage})`,
+                backgroundPositionX: `${bgPositionX}px`,
+                backgroundSize: 'cover',
+              }}
+    />
+
+      {/* Start Screen */}
+      {!isPlaying && !isGameOver && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl font-bold text-white">
+          <p>Press Space to Start</p>
+        </div>
+        
+      )}
+
+      <Infopanel {...FlappyData} />
+
       {/* Bird */}
       <div
         className="absolute w-10 h-8 bg-yellow-400 rounded-full"
-        style={{ top: `${birdY}px`, left: '60px' }}
+        style={{
+          top: `${birdY}px`,
+          left: '60px',
+          transform: `rotate(${birdRotation}deg)`,
+          transition: 'transform 0.1s ease-out',
+        }}
       />
 
       {/* Pipes */}
       {pipes.map((pipe, i) => (
         <div key={i}>
           <div
-            className="absolute bg-green-500 w-12"
+            className="absolute bg-green-500 w-12 border border-darkgreen"
             style={{ left: `${pipe.x}px`, height: `${pipe.topHeight}px`, top: 0 }}
           />
           <div
-            className="absolute bg-green-500 w-12"
+            className="absolute bg-green-500 w-12 border border-darkgreen"
             style={{
               left: `${pipe.x}px`,
               height: `600px`,
@@ -142,7 +183,6 @@ const Flappy = () => {
   );
 };
 
-// Collision detection helper
 const checkCollision = (rect1, rect2) => {
   return (
     rect1.x < rect2.x + rect2.width &&
