@@ -3,6 +3,7 @@ import Field from "./components/noodle/Field";
 import Home from "./components/Home";
 import Board from "./components/tileswapper/Board";
 import Golf from "./components/minigolf/Golf";
+import Flappy from "./components/flappyclone/Flappy";
 
 
 
@@ -29,6 +30,7 @@ function App() {
             <Route path="/noodle" element={<Field />} /> 
             <Route path="/tileswap" element={<Board />} />
             <Route path="/minigolf" element={<Golf />} />
+            <Route path="/flappy" element={<Flappy />} />
           </Routes>
         </div>
       </div>
