@@ -116,7 +116,7 @@ const Modal = ({ onClose, gameTime, gameType }) => {
                   <tr>
                     <th className="px-4 text-left">#</th>
                     <th className="px-4 text-left">Name</th>
-                    <th className="px-4 text-left">Time left</th>
+                    <th className="px-4 text-left">Time</th>
                   </tr>
                 </thead>
                 <tbody>

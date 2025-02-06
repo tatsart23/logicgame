@@ -64,10 +64,10 @@ const useSwapLogic = () => {
     }
   };
 
-  /*const setWinState = () => {
+  const setWinState = () => {
     const winningState = [...Array.from({ length: 15 }, (_, i) => i + 1), null];
     setTiles(winningState);
-  };*/
+  };
 
   return {
     tiles,
@@ -80,7 +80,7 @@ const useSwapLogic = () => {
     handleStop,
     handleTileClick,
     setIsModalOpen,
-    /*setWinState*/
+    setWinState
   };
 };
 

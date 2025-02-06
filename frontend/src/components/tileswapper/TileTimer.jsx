@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import PropTypes from 'prop-types';
 
-const TileTimer = ({ start, setGameTime }) => {
+const TileTimer = ({ start, onTimeUpdate }) => {
   const [time, setTime] = useState(0);
 
   useEffect(() => {
@@ -11,15 +11,16 @@ const TileTimer = ({ start, setGameTime }) => {
     }
 
     const interval = setInterval(() => {
-      setTime((prevTime) => {
-        const newTime = prevTime + 10;
-        setGameTime(newTime); // Päivitä aika pääkomponentissa
-        return newTime;
-      });
+      setTime((prevTime) => prevTime + 10);
     }, 10);
 
     return () => clearInterval(interval);
-  }, [start, setGameTime]);
+  }, [start]);
+
+  // Notify the parent component when time changes
+  useEffect(() => {
+    onTimeUpdate(time);
+  }, [time, onTimeUpdate]);
 
   const minutes = Math.floor(time / 60000);
   const seconds = Math.floor((time % 60000) / 1000);
@@ -34,7 +35,7 @@ const TileTimer = ({ start, setGameTime }) => {
 
 TileTimer.propTypes = {
   start: PropTypes.bool.isRequired,
-  setGameTime: PropTypes.func.isRequired, // Varmistetaan että funktio tulee
+  onTimeUpdate: PropTypes.func.isRequired,
 };
 
 export default TileTimer;
