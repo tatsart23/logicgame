@@ -45,7 +45,7 @@ const Board = () => {
         </button>*/}
       </div>
 
-      {isModalOpen && <Modal onClose={() => setIsModalOpen(false)} gameTime={gameTime} />}
+      {isModalOpen && <Modal onClose={() => setIsModalOpen(false)} gameTime={gameTime} gameType="Tiles"/>}
 
       <div className="grid grid-cols-4 mt-4">
         {tiles.map((tile, index) => (

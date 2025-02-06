@@ -337,7 +337,7 @@ const Field = () => {
         setHasClickedRandom={setHasClickedRandom}
         setRemainingTime={setRemainingTime}
       />
-      {isModalOpen && <Modal onClose={() => setIsModalOpen(false)} gameTime={finalTime} />}
+      {isModalOpen && <Modal onClose={() => setIsModalOpen(false)} gameTime={finalTime} gameType="Kanoodle" />}
       <div
         className="grid grid-cols-11 w-96 mt-5 border p-2 bg-gray-200 rounded-md"
         id="game-board"

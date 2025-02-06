@@ -17,6 +17,7 @@ const db = new sqlite3.Database("leaderboard.db", (err) => {
     db.run(
       `CREATE TABLE IF NOT EXISTS leaderboard (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        game TEXT NOT NULL,
         name TEXT NOT NULL,
         score INTEGER NOT NULL
       )`
@@ -24,9 +25,15 @@ const db = new sqlite3.Database("leaderboard.db", (err) => {
   }
 });
 
-// Get leaderboard
+// Get leaderboard filtered by game
 app.get("/leaderboard", (req, res) => {
-  db.all("SELECT * FROM leaderboard ORDER BY score DESC LIMIT 10", [], (err, rows) => {
+  const { game } = req.query;
+
+  const query = game
+    ? "SELECT * FROM leaderboard WHERE game = ? ORDER BY score DESC LIMIT 10"
+    : "SELECT * FROM leaderboard ORDER BY score DESC LIMIT 10";
+
+  db.all(query, game ? [game] : [], (err, rows) => {
     if (err) {
       res.status(500).json({ error: err.message });
       return;
@@ -37,15 +44,19 @@ app.get("/leaderboard", (req, res) => {
 
 // Add new score
 app.post("/leaderboard", (req, res) => {
-  const { name, score } = req.body;
+  const { game, name, score } = req.body;
+
+  if (!game) {
+    return res.status(400).json({ error: "Game is not set contanct backend idiot." });
+  }
   
   if (!name || score == null) {
     return res.status(400).json({ error: "Name and score are required." });
   }
 
   db.run(
-    "INSERT INTO leaderboard (name, score) VALUES (?, ?)",
-    [name, score],
+    "INSERT INTO leaderboard (game, name, score) VALUES (?, ?, ?)",
+    [game, name, score],
     function (err) {
       if (err) {
         return res.status(500).json({ error: err.message });

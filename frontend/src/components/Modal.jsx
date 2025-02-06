@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import ReactConfetti from "react-confetti";
 import axios from "axios";
 
-const Modal = ({ onClose, gameTime }) => {
+const Modal = ({ onClose, gameTime, gameType }) => {
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -12,24 +12,26 @@ const Modal = ({ onClose, gameTime }) => {
   const [leaderboard, setLeaderboard] = useState([]);
   const [name, setName] = useState("");  // Nimen tallennus
   const [score, setScore] = useState(Math.floor(gameTime / 1000));  // Oletetaan, että score lasketaan gameTimesta
+  const [game, setGame] = useState(gameType); // Pelin nimi
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/leaderboard");
+        const response = await axios.get(`http://localhost:5000/leaderboard?game=${game}`);
         setLeaderboard(response.data);
       } catch (error) {
-        console.error("Virhe haettaessa leaderboard-dataa:", error);
+        console.error("Error fetching leaderboard data:", error);
       }
     };
 
     fetchLeaderboard();
-  }, []); // Tyhjä riippuvuuslista tarkoittaa, että tämä suoritetaan kerran, kun modal aukeaa.
+  }, [game]); // Re-fetch if the game type changes
+
 
   // Lähettää nimen ja score tietokantaan
-  const postLeaderboard = async (name, score) => {
+  const postLeaderboard = async (game, name, score) => {
     try {
-      const response = await axios.post("http://localhost:5000/leaderboard", { name, score });
+      const response = await axios.post("http://localhost:5000/leaderboard", { game, name, score });
       setLeaderboard((prevLeaderboard) => [response.data, ...prevLeaderboard]);
     } catch (error) {
       console.error("Virhe leaderboardin lähettämisessä:", error);
@@ -41,7 +43,7 @@ const Modal = ({ onClose, gameTime }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (name) {
-      postLeaderboard(name, score);
+      postLeaderboard(game, name, score);
       setName(""); // Tyhjennetään nimi kenttä lähetyksen jälkeen
     } else {
       alert("Please enter your name.");
@@ -114,7 +116,7 @@ const Modal = ({ onClose, gameTime }) => {
                   <tr>
                     <th className="px-4 text-left">#</th>
                     <th className="px-4 text-left">Name</th>
-                    <th className="px-4 text-left">Score</th>
+                    <th className="px-4 text-left">Time left</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -152,6 +154,7 @@ const Modal = ({ onClose, gameTime }) => {
 Modal.propTypes = {
   onClose: PropTypes.func.isRequired,
   gameTime: PropTypes.number.isRequired,
+  gameType: PropTypes.string.isRequired,
 };
 
 export default Modal;
