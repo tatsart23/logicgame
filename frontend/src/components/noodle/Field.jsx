@@ -316,15 +316,6 @@ const Field = () => {
       setIsModalOpen(true);
       setFinalTime(remainingTime);
       handleGameReset();
-      // Replace with player's name and final score
-      const playerName = prompt("Enter your name:");
-      const finalScore = remainingTime; //Using remaining time as score
-      
-      
-
-      if (playerName) {
-        submitScore(playerName, finalScore);
-      }
     }
   }, [blocks, remainingTime]);
   
