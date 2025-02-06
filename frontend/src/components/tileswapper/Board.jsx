@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import Infopanel from "../Infopanel";
 import TileData from "/src/data/TileData.jsx";
 import TileTimer from "./TileTimer";
@@ -16,13 +17,18 @@ const Board = () => {
     handleStop,
     handleTileClick,
     setIsModalOpen,
-    /*setWinState,*/
+    setWinState,
   } = useSwapLogic(); 
+
+  // Function to safely update game time
+  const handleTimeUpdate = (newTime) => {
+    setGameTime(newTime);
+  };
 
   return (
     <>
       <Infopanel {...TileData} />
-      <TileTimer start={start} setGameTime={setGameTime} />
+      <TileTimer start={start} onTimeUpdate={handleTimeUpdate} />
       <div className="m-5">
         <button
           onClick={startGame}
@@ -37,12 +43,12 @@ const Board = () => {
         >
           Stop
         </button>
-        {/*<button
+        <button
           onClick={setWinState}
           className="px-4 py-2 rounded-md border border-black bg-blue-500 text-black text-xl hover:bg-blue-300 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition duration-200 ml-4"
         >
           Set Win State
-        </button>*/}
+        </button>
       </div>
 
       {isModalOpen && <Modal onClose={() => setIsModalOpen(false)} gameTime={gameTime} gameType="Tiles"/>}
@@ -51,7 +57,7 @@ const Board = () => {
         {tiles.map((tile, index) => (
           <div
             key={index}
-            className={`tile border-2 border-black odd:bg-slate-400 even:bg-red-200  w-16 h-16 flex justify-center items-center hover:bg-gray-300 cursor-pointer`}
+            className={`tile border-2 border-black odd:bg-slate-400 even:bg-red-200 w-16 h-16 flex justify-center items-center hover:bg-gray-300 cursor-pointer`}
             onClick={() => handleTileClick(index)}
           >
             {tile && (
